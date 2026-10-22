@@ -1,0 +1,356 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Dashboard - Smart Wealth Tracker{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1">Financial Dashboard</h1>
+        <p class="text-secondary small mb-0">Real-time overview of your income, expenses, budgets, and AI spending forecasts.</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <button type="button" class="btn btn-wt-primary btn-sm d-flex align-items-center gap-1 shadow-sm" data-bs-toggle="modal" data-bs-target="#quickAddModal">
+            <i class="bi bi-plus-circle-fill"></i>
+            <span>Add Transaction</span>
+        </button>
+        <a href="{% url 'add_budget' %}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
+            <i class="bi bi-pie-chart-fill text-warning"></i>
+            <span>Set Budget</span>
+        </a>
+        <a href="{% url 'add_savings_goal' %}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
+            <i class="bi bi-trophy-fill text-success"></i>
+            <span>New Goal</span>
+        </a>
+        <a href="{% url 'net_worth' %}" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1">
+            <i class="bi bi-bank"></i>
+            <span>Net Worth</span>
+        </a>
+    </div>
+</div>
+
+<!-- KPI Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-balance h-100">
+            <span class="stat-label">Net Balance</span>
+            <div class="stat-value text-primary">₹{{ balance }}</div>
+            <div class="stat-meta">
+                <i class="bi bi-wallet2"></i>
+                <span>Current available liquidity</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-income h-100">
+            <span class="stat-label">Total Income</span>
+            <div class="stat-value text-success">+₹{{ total_income }}</div>
+            <div class="stat-meta">
+                <i class="bi bi-arrow-up-right text-success"></i>
+                <span>Cumulative earnings</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-expense h-100">
+            <span class="stat-label">Total Expenses</span>
+            <div class="stat-value text-danger">-₹{{ total_expense }}</div>
+            <div class="stat-meta">
+                <i class="bi bi-arrow-down-left text-danger"></i>
+                <span>Cumulative spending</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-ai h-100">
+            <span class="stat-label">AI Forecast (Next Mo.)</span>
+            <div class="stat-value text-purple">₹{{ ai_data.next_month_pred }}</div>
+            <div class="stat-meta">
+                <i class="bi bi-robot text-purple"></i>
+                <span>{{ ai_data.trend_label }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Intelligence Banner -->
+<div class="card card-fintech border-0 shadow-sm mb-4" style="background: var(--wt-ai-light); border-left: 4px solid var(--wt-ai) !important;">
+    <div class="card-body p-3 p-md-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center justify-content-center rounded-3 bg-white shadow-xs p-2" style="width: 44px; height: 44px; font-size: 1.4rem;">
+                🤖
+            </div>
+            <div>
+                <strong class="d-block" style="color: var(--wt-ai-dark);">AI Intelligence &amp; Spending Advisory</strong>
+                <p class="small mb-0 text-muted">
+                    Predicted next month spend: <strong>₹{{ ai_data.next_month_pred }}</strong> &bull; 
+                    {% if financial_insights %}
+                        {{ financial_insights.0.body }}
+                    {% else %}
+                        {{ ai_data.advice }}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <a href="{% url 'ai_insights' %}" class="btn btn-sm btn-outline-primary bg-white shadow-xs fw-semibold">
+            Explore AI Hub &rarr;
+        </a>
+    </div>
+</div>
+
+<!-- Charts Grid -->
+<div class="row g-4 mb-4">
+    <!-- Pie / Donut Chart -->
+    <div class="col-lg-5">
+        <div class="card card-fintech h-100 p-3">
+            <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                <h5 class="card-title h6 fw-bold mb-0">
+                    <i class="bi bi-pie-chart-fill text-primary me-2"></i>Expense Breakdown
+                </h5>
+                <span class="badge badge-category">Category Share</span>
+            </div>
+            <div style="position: relative; height: 280px;">
+                <canvas id="categoryPieChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6-Month Income vs Expense Bar Chart -->
+    <div class="col-lg-7">
+        <div class="card card-fintech h-100 p-3">
+            <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                <h5 class="card-title h6 fw-bold mb-0">
+                    <i class="bi bi-bar-chart-fill text-success me-2"></i>Cash Flow (Last 6 Months)
+                </h5>
+                <span class="badge badge-income">Income vs Expense</span>
+            </div>
+            <div style="position: relative; height: 280px;">
+                <canvas id="incomeExpenseBarChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Active Savings Goals Quick View -->
+{% if savings_goals %}
+<div class="card card-fintech mb-4">
+    <div class="card-header bg-transparent d-flex align-items-center justify-content-between py-3">
+        <h5 class="h6 fw-bold mb-0">
+            <i class="bi bi-trophy-fill text-warning me-2"></i>Active Savings Goals
+        </h5>
+        <a href="{% url 'savings_goal_list' %}" class="btn btn-sm btn-outline-secondary">View All Goals &rarr;</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-fintech">
+            <thead>
+                <tr>
+                    <th>Goal Name</th>
+                    <th>Target Amount</th>
+                    <th>Saved Amount</th>
+                    <th>Progress</th>
+                    <th>Deadline</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for g in savings_goals %}
+                <tr>
+                    <td><strong>{{ g.goal_name }}</strong></td>
+                    <td>₹{{ g.target_amount }}</td>
+                    <td class="text-success fw-bold">₹{{ g.saved_amount }}</td>
+                    <td style="width: 240px;">
+                        <div class="progress" style="height: 8px; border-radius: var(--wt-radius-full);">
+                            <div class="progress-bar {% if g.saved_amount >= g.target_amount %}bg-success{% else %}bg-primary{% endif %}" role="progressbar" style="width: {% if g.target_amount > 0 %}{% widthratio g.saved_amount g.target_amount 100 %}{% else %}0{% endif %}%;"></div>
+                        </div>
+                        <span class="small text-muted fw-semibold mt-1 d-block">
+                            {% if g.target_amount > 0 %}{% widthratio g.saved_amount g.target_amount 100 %}% Saved{% else %}0%{% endif %}
+                        </span>
+                    </td>
+                    <td><span class="badge badge-category">{{ g.deadline }}</span></td>
+                    <td class="text-end">
+                        <a href="{% url 'add_savings_contribution' g.pk %}" class="btn btn-sm btn-outline-success">
+                            <i class="bi bi-plus-lg me-1"></i>Deposit
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Recent Transactions Table -->
+<div class="card card-fintech">
+    <div class="card-header bg-transparent d-flex align-items-center justify-content-between py-3">
+        <h5 class="h6 fw-bold mb-0">
+            <i class="bi bi-clock-history text-secondary me-2"></i>Recent Transactions
+        </h5>
+        <a href="{% url 'transaction_list' %}" class="btn btn-sm btn-outline-secondary">Full Ledger &rarr;</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-fintech">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in transactions %}
+                <tr>
+                    <td class="text-muted small">{{ t.date }}</td>
+                    <td>
+                        {% if t.type == 'income' %}
+                            <span class="badge badge-income">↑ Income</span>
+                        {% else %}
+                            <span class="badge badge-expense">↓ Expense</span>
+                        {% endif %}
+                    </td>
+                    <td><span class="badge badge-category">{{ t.category|default:"General" }}</span></td>
+                    <td><strong>{{ t.description|default:"—" }}</strong></td>
+                    <td class="fw-bold {% if t.type == 'income' %}text-success{% else %}text-danger{% endif %}">
+                        {% if t.type == 'income' %}+₹{{ t.amount }}{% else %}-₹{{ t.amount }}{% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary"></i>
+                        No transactions recorded yet.
+                        <button type="button" class="btn btn-sm btn-wt-primary mt-2 d-inline-block" data-bs-toggle="modal" data-bs-target="#quickAddModal">Add Transaction</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Chart.js Setup with Theme Adaptation
+    function getChartThemeColors(theme) {
+        const isDark = theme === 'dark';
+        return {
+            textColor: isDark ? '#94a3b8' : '#64748b',
+            gridColor: isDark ? '#27354f' : '#f1f5f9',
+            borderColor: isDark ? '#151f32' : '#ffffff'
+        };
+    }
+
+    const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+    let themeColors = getChartThemeColors(currentTheme);
+
+    Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    Chart.defaults.color = themeColors.textColor;
+
+    // 1. Donut Chart (Category Breakdown)
+    const pieLabels = {{ pie_labels|safe }};
+    const pieData = {{ pie_data|safe }};
+
+    const pieCtx = document.getElementById('categoryPieChart').getContext('2d');
+    const pieChart = new Chart(pieCtx, {
+        type: 'doughnut',
+        data: {
+            labels: pieLabels.length > 0 ? pieLabels : ['No Expenses Yet'],
+            datasets: [{
+                data: pieData.length > 0 ? pieData : [1],
+                backgroundColor: [
+                    '#4f46e5', '#10b981', '#f59e0b', '#ef4444',
+                    '#8b5cf6', '#06b6d4', '#ec4899', '#64748b'
+                ],
+                borderWidth: 2,
+                borderColor: themeColors.borderColor
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { boxWidth: 12, padding: 12, color: themeColors.textColor }
+                }
+            },
+            cutout: '62%'
+        }
+    });
+
+    // 2. Bar Chart (Cash Flow)
+    const barLabels = {{ bar_labels|safe }};
+    const barIncome = {{ bar_income|safe }};
+    const barExpense = {{ bar_expense|safe }};
+
+    const barCtx = document.getElementById('incomeExpenseBarChart').getContext('2d');
+    const barChart = new Chart(barCtx, {
+        type: 'bar',
+        data: {
+            labels: barLabels,
+            datasets: [
+                {
+                    label: 'Income (₹)',
+                    data: barIncome,
+                    backgroundColor: '#10b981',
+                    borderRadius: 6
+                },
+                {
+                    label: 'Expense (₹)',
+                    data: barExpense,
+                    backgroundColor: '#ef4444',
+                    borderRadius: 6
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { boxWidth: 12, color: themeColors.textColor }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: themeColors.gridColor },
+                    ticks: {
+                        color: themeColors.textColor,
+                        callback: function(value) { return '₹' + value; }
+                    }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: themeColors.textColor }
+                }
+            }
+        }
+    });
+
+    // Listen for dark/light mode toggle event
+    window.addEventListener('themeChanged', function (e) {
+        const colors = getChartThemeColors(e.detail.theme);
+        Chart.defaults.color = colors.textColor;
+
+        // Update Pie
+        pieChart.data.datasets[0].borderColor = colors.borderColor;
+        pieChart.options.plugins.legend.labels.color = colors.textColor;
+        pieChart.update();
+
+        // Update Bar
+        barChart.options.plugins.legend.labels.color = colors.textColor;
+        barChart.options.scales.y.grid.color = colors.gridColor;
+        barChart.options.scales.y.ticks.color = colors.textColor;
+        barChart.options.scales.x.ticks.color = colors.textColor;
+        barChart.update();
+    });
+</script>
+{% endblock %}

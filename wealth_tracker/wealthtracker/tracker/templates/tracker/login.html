@@ -1,0 +1,123 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Smart Wealth Tracker</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'tracker/style.css' %}">
+</head>
+<body>
+
+<div class="dual-auth-container">
+    <!-- Left Brand & Visual Panel -->
+    <div class="dual-auth-brand">
+        <div class="dual-brand-header">
+            <a href="{% url 'landing' %}" class="dual-brand-logo">
+                <span class="dual-brand-icon">💰</span>
+                <span>WealthTracker</span>
+            </a>
+        </div>
+
+        <div class="dual-brand-body">
+            <div class="dual-hero-tag">
+                <span>🤖</span>
+                <span>AI-Driven Financial Intelligence</span>
+            </div>
+
+            <h1 class="dual-hero-title">
+                Smarter Finances,<br>Zero Guesswork.
+            </h1>
+
+            <p class="dual-hero-desc">
+                Log transactions, visualize category breakdowns with interactive charts, and forecast next month's cash flow using machine learning models.
+            </p>
+
+            <!-- Feature highlight showcase card -->
+            <div class="dual-feature-card">
+                <div class="dual-feature-item">
+                    <div class="dual-feature-icon">📈</div>
+                    <div class="dual-feature-text">
+                        <h4>Linear Regression Forecast</h4>
+                        <p>Predict next month's spending velocity and catch budget overrun risks before they happen.</p>
+                    </div>
+                </div>
+
+                <div class="dual-feature-item">
+                    <div class="dual-feature-icon">🏷️</div>
+                    <div class="dual-feature-text">
+                        <h4>Naive Bayes Auto-Categorization</h4>
+                        <p>Automatically classifies descriptions into Food, Transport, Utilities, and Shopping.</p>
+                    </div>
+                </div>
+
+                <div class="dual-feature-item">
+                    <div class="dual-feature-icon">🏆</div>
+                    <div class="dual-feature-text">
+                        <h4>Savings Goals with Progress Rings</h4>
+                        <p>Track deadlines, remaining balances, and deposit funds towards your life milestones.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dual-brand-footer">
+            <span>&copy; 2026 Smart Wealth Tracker</span>
+            <span>🔒 256-Bit Secure Session</span>
+        </div>
+    </div>
+
+    <!-- Right Form Panel -->
+    <div class="dual-auth-form-side">
+        <div class="dual-form-container">
+            <a href="{% url 'landing' %}" class="dual-back-link">
+                &larr; Back to Home
+            </a>
+
+            <div class="dual-form-header">
+                <h2 class="dual-form-title">Welcome Back</h2>
+                <p class="dual-form-subtitle">Enter your credentials to access your financial dashboard.</p>
+            </div>
+
+            {% if form.non_field_errors %}
+                <div style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 12px 14px; border-radius: 8px; margin-bottom: 20px; font-size: 0.88rem; font-weight: 500;">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="id_username">Username</label>
+                    <input type="text" name="username" id="id_username" placeholder="e.g. shadow" autofocus required>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password">Password</label>
+                    <input type="password" name="password" id="id_password" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 10px;">
+                    Sign In to Dashboard &rarr;
+                </button>
+            </form>
+
+            <div style="margin-top: 24px; text-align: center; font-size: 0.9rem; color: var(--text-muted);">
+                Don't have an account? 
+                <a href="{% url 'signup' %}" style="color: var(--primary); font-weight: 700; text-decoration: none;">
+                    Create one free &rarr;
+                </a>
+            </div>
+
+            <div style="margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--border-color); text-align: center; font-size: 0.8rem; color: var(--text-light);">
+                Demo Credentials: <strong>shadow</strong> / <strong>shadow123</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,87 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Edit Asset - Smart Wealth Tracker{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1">
+            <i class="bi bi-pencil-square text-primary me-2"></i>Edit Asset Holding
+        </h1>
+        <p class="text-secondary small mb-0">Update valuation or details for {{ asset.name }}.</p>
+    </div>
+    <div>
+        <a href="{% url 'net_worth' %}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
+            <i class="bi bi-arrow-left"></i>
+            <span>Back to Net Worth</span>
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+        <div class="card card-fintech shadow-sm">
+            <div class="card-header bg-transparent py-3">
+                <h6 class="fw-bold mb-0">
+                    <i class="bi bi-wallet2 text-success me-2"></i>Modify Asset: {{ asset.name }}
+                </h6>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" novalidate>
+                    {% csrf_token %}
+
+                    <!-- Asset Name -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold" for="{{ form.name.id_for_label }}">
+                            Asset / Holding Name <span class="text-danger">*</span>
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Asset Type -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold" for="{{ form.asset_type.id_for_label }}">
+                            Asset Class <span class="text-danger">*</span>
+                        </label>
+                        {{ form.asset_type }}
+                        {% if form.asset_type.errors %}
+                        <div class="text-danger small mt-1">{{ form.asset_type.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Valuation Amount -->
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold" for="{{ form.amount.id_for_label }}">
+                            Current Valuation <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text fw-bold text-muted">₹</span>
+                            {{ form.amount }}
+                        </div>
+                        {% if form.amount.errors %}
+                        <div class="text-danger small mt-1">{{ form.amount.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+                        <a href="{% url 'delete_asset' asset.pk %}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to permanently delete this asset?');">
+                            <i class="bi bi-trash me-1"></i>Delete Asset
+                        </a>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'net_worth' %}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-wt-primary d-flex align-items-center gap-1">
+                                <i class="bi bi-check-lg"></i>
+                                <span>Update Asset</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

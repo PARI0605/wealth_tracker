@@ -1,0 +1,232 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Transactions - Smart Wealth Tracker{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1">Transaction Ledger</h1>
+        <p class="text-secondary small mb-0">Record, filter, search, import, and audit all financial cash flows.</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <button type="button" class="btn btn-wt-primary btn-sm d-flex align-items-center gap-1 shadow-sm" data-bs-toggle="modal" data-bs-target="#quickAddModal">
+            <i class="bi bi-plus-circle-fill"></i>
+            <span>Add Transaction</span>
+        </button>
+        <a href="{% url 'import_transactions_csv' %}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
+            <i class="bi bi-cloud-arrow-up-fill text-primary"></i>
+            <span>Import CSV</span>
+        </a>
+        <a href="{% url 'export_transactions_csv' %}?q={{ q }}&type={{ active_type }}&category={{ active_category }}&start_date={{ start_date }}&end_date={{ end_date }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" title="Download filtered records as CSV">
+            <i class="bi bi-download text-success"></i>
+            <span>Export CSV</span>
+        </a>
+        <a href="{% url 'add_category' %}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
+            <i class="bi bi-tags-fill text-secondary"></i>
+            <span>Categories</span>
+        </a>
+    </div>
+</div>
+
+<!-- Ledger Card with Comprehensive Search & Filter Toolbar -->
+<div class="card card-fintech shadow-sm mb-4">
+    <div class="p-3 border-bottom bg-transparent">
+        <form method="GET" action="{% url 'transaction_list' %}" class="row g-2 align-items-center">
+            <!-- Search Keyword -->
+            <div class="col-md-3">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-transparent border-end-0 text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="q" id="ledgerSearchInput" value="{{ q }}" class="form-control border-start-0" placeholder="Search memo or merchant...">
+                </div>
+            </div>
+
+            <!-- Category Selector -->
+            <div class="col-md-2 col-6">
+                <select name="category" class="form-select form-select-sm">
+                    <option value="">All Categories</option>
+                    {% for c in categories %}
+                    <option value="{{ c.id }}" {% if active_category == c.id|stringformat:"s" %}selected{% endif %}>
+                        {{ c.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Type Selector -->
+            <div class="col-md-2 col-6">
+                <select name="type" class="form-select form-select-sm">
+                    <option value="">All Types</option>
+                    <option value="expense" {% if active_type == 'expense' %}selected{% endif %}>↓ Expense Only</option>
+                    <option value="income" {% if active_type == 'income' %}selected{% endif %}>↑ Income Only</option>
+                </select>
+            </div>
+
+            <!-- Date Range From -->
+            <div class="col-md-2 col-6">
+                <input type="date" name="start_date" value="{{ start_date }}" class="form-control form-control-sm" placeholder="From Date" title="From Date">
+            </div>
+
+            <!-- Date Range To -->
+            <div class="col-md-2 col-6">
+                <input type="date" name="end_date" value="{{ end_date }}" class="form-control form-control-sm" placeholder="To Date" title="To Date">
+            </div>
+
+            <!-- Actions -->
+            <div class="col-md-1 d-flex gap-1">
+                <button type="submit" class="btn btn-sm btn-wt-primary w-100" title="Apply Filters">
+                    <i class="bi bi-funnel-fill"></i>
+                </button>
+                {% if q or active_type or active_category or start_date or end_date %}
+                <a href="{% url 'transaction_list' %}" class="btn btn-sm btn-outline-secondary" title="Reset Filters">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Filtered Results Summary Metrics Strip -->
+    <div class="px-3 py-2 bg-light border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2 small text-muted">
+        <div>
+            Showing <strong>{{ transactions|length }}</strong> of <strong>{{ total_count }}</strong> records
+            {% if q or active_type or active_category or start_date or end_date %}
+            <span class="badge bg-primary-subtle text-primary border border-primary ms-1">Filtered</span>
+            {% endif %}
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <span>Income: <strong class="text-success">+₹{{ filtered_income }}</strong></span>
+            <span>Expenses: <strong class="text-danger">-₹{{ filtered_expense }}</strong></span>
+            <span>Net: <strong class="{% if filtered_net >= 0 %}text-success{% else %}text-danger{% endif %}">₹{{ filtered_net }}</strong></span>
+        </div>
+    </div>
+
+    <!-- Transactions Data Table -->
+    <div class="table-responsive">
+        <table class="table table-fintech mb-0" id="transactionsTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Payment</th>
+                    <th>Amount</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in transactions %}
+                <tr>
+                    <td class="text-muted small text-nowrap">
+                        {{ t.date|date:"d M Y" }}
+                    </td>
+                    <td>
+                        {% if t.type == 'income' %}
+                            <span class="badge badge-income">↑ Income</span>
+                        {% else %}
+                            <span class="badge badge-expense">↓ Expense</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if t.category %}
+                        <span class="badge badge-category" style="background-color: {{ t.category.color }}18; color: {{ t.category.color }}; border: 1px solid {{ t.category.color }}40;">
+                            <i class="bi {{ t.category.icon|default:'bi-tag' }} me-1"></i>{{ t.category.name }}
+                        </span>
+                        {% else %}
+                        <span class="badge badge-category">General</span>
+                        {% endif %}
+                    </td>
+                    <td class="desc-cell">
+                        <strong>{{ t.description|default:"—" }}</strong>
+                        {% if t.is_recurring %}
+                        <span class="badge bg-info-subtle text-info border border-info ms-1 small" style="font-size: 0.7rem;">
+                            <i class="bi bi-arrow-repeat me-1"></i>Recurring
+                        </span>
+                        {% endif %}
+                        {% if t.pk in anomaly_ids %}
+                        <span class="badge bg-warning-subtle text-warning border border-warning ms-1 small" style="font-size: 0.7rem;" title="AI Anomaly: Statistically unusual expense">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Unusual Spend
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="small text-muted text-nowrap">
+                        <span class="badge bg-secondary-subtle text-secondary border">
+                            {{ t.payment_method|default:"UPI" }}
+                        </span>
+                    </td>
+                    <td class="fw-bold {% if t.type == 'income' %}text-success{% else %}text-danger{% endif %} text-nowrap">
+                        {% if t.type == 'income' %}+₹{{ t.amount }}{% else %}-₹{{ t.amount }}{% endif %}
+                    </td>
+                    <td class="text-end text-nowrap">
+                        <a href="{% url 'edit_transaction' t.pk %}" class="btn btn-sm btn-outline-secondary py-1 px-2 me-1" title="Edit Record">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <a href="{% url 'delete_transaction' t.pk %}" class="btn btn-sm btn-outline-danger py-1 px-2" title="Delete Record" onclick="return confirm('Delete transaction of ₹{{ t.amount }} permanently?')">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary"></i>
+                        No transactions found matching your criteria.
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-sm btn-wt-primary me-2" data-bs-toggle="modal" data-bs-target="#quickAddModal">Add Transaction</button>
+                            <a href="{% url 'import_transactions_csv' %}" class="btn btn-sm btn-outline-primary">Import CSV</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    {% if page_obj.has_other_pages %}
+    <div class="p-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span class="small text-muted">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+        <nav aria-label="Transaction pagination">
+            <ul class="pagination pagination-sm mb-0">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ q }}&type={{ active_type }}&category={{ active_category }}&start_date={{ start_date }}&end_date={{ end_date }}">
+                        &laquo; Prev
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">&laquo; Prev</span></li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}&q={{ q }}&type={{ active_type }}&category={{ active_category }}&start_date={{ start_date }}&end_date={{ end_date }}">
+                            {{ num }}
+                        </a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ q }}&type={{ active_type }}&category={{ active_category }}&start_date={{ start_date }}&end_date={{ end_date }}">
+                        Next &raquo;
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">Next &raquo;</span></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Budgets - Smart Wealth Tracker{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1">Monthly Budgets</h1>
+        <p class="text-secondary small mb-0">Control category spending thresholds and receive proactive overrun warnings.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'add_budget' %}" class="btn btn-wt-primary btn-sm d-flex align-items-center gap-1 shadow-sm">
+            <i class="bi bi-plus-circle-fill"></i>
+            <span>Set New Budget</span>
+        </a>
+    </div>
+</div>
+
+<!-- Budgets Table Card -->
+<div class="card card-fintech">
+    <div class="table-responsive">
+        <table class="table table-fintech">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Period</th>
+                    <th>Budget Limit</th>
+                    <th>Actual Spent</th>
+                    <th style="width: 250px;">Progress</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in budget_data %}
+                <tr class="{% if item.exceeded %}table-danger-subtle{% endif %}">
+                    <td>
+                        <span class="badge badge-category fs-6 fw-bold">
+                            <i class="bi bi-tag-fill text-primary me-1"></i>{{ item.budget.category }}
+                        </span>
+                    </td>
+                    <td class="text-muted small">{{ item.budget.month }}/{{ item.budget.year }}</td>
+                    <td class="fw-bold">₹{{ item.budget.limit_amount }}</td>
+                    <td class="fw-bold {% if item.exceeded %}text-danger{% else %}text-main{% endif %}">
+                        ₹{{ item.spent }}
+                    </td>
+                    <td>
+                        <div class="progress" style="height: 10px; border-radius: var(--wt-radius-full);">
+                            <div class="progress-bar {% if item.exceeded %}bg-danger{% elif item.percent >= 80 %}bg-warning{% else %}bg-success{% endif %}" role="progressbar" style="width: {% if item.percent > 100 %}100{% else %}{{ item.percent }}{% endif %}%;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between small text-muted mt-1">
+                            <span>{{ item.percent }}% utilized</span>
+                            {% if item.exceeded %}
+                            <span class="text-danger fw-bold">Over by ₹{{ item.spent|add:"-item.budget.limit_amount"|default:"" }}</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        {% if item.exceeded %}
+                            <span class="badge badge-exceeded">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i>Exceeded!
+                            </span>
+                        {% elif item.percent >= 80 %}
+                            <span class="badge bg-warning-subtle text-warning border border-warning">
+                                <i class="bi bi-bell-fill me-1"></i>Caution (&gt;80%)
+                            </span>
+                        {% else %}
+                            <span class="badge badge-ontrack">
+                                <i class="bi bi-check-circle-fill me-1"></i>On Track
+                            </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-5 text-muted">
+                        <i class="bi bi-pie-chart fs-2 d-block mb-2 text-secondary"></i>
+                        No budgets allocated for this month.
+                        <a href="{% url 'add_budget' %}" class="btn btn-sm btn-wt-primary mt-2 d-inline-block">Set First Budget</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

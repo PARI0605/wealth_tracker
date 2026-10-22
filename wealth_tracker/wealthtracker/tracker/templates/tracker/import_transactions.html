@@ -1,0 +1,113 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Import Bank Statement CSV - Smart Wealth Tracker{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1">
+            <i class="bi bi-file-earmark-spreadsheet-fill text-success me-2"></i>Import Bank Statement (CSV)
+        </h1>
+        <p class="text-secondary small mb-0">Upload bank or wallet statement CSV files for automatic ingestion and AI categorization.</p>
+    </div>
+    <div>
+        <a href="{% url 'transaction_list' %}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
+            <i class="bi bi-arrow-left"></i>
+            <span>Back to Ledger</span>
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-7 col-md-9">
+        <!-- Guidelines Card -->
+        <div class="card card-fintech shadow-sm mb-4">
+            <div class="card-header bg-transparent py-3">
+                <h6 class="fw-bold mb-0">
+                    <i class="bi bi-info-circle-fill text-primary me-2"></i>CSV Format Guidelines
+                </h6>
+            </div>
+            <div class="card-body p-4">
+                <p class="small text-muted mb-3">
+                    Your CSV file should have a header row with standard column names. The importer automatically detects case-insensitive variations:
+                </p>
+
+                <div class="table-responsive mb-3">
+                    <table class="table table-sm table-bordered small">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Column</th>
+                                <th>Accepted Header Names</th>
+                                <th>Example Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge bg-primary">Date</span></td>
+                                <td><code>Date</code>, <code>Transaction Date</code>, <code>Txn Date</code></td>
+                                <td><code>2026-10-15</code> or <code>15/10/2026</code></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-primary">Amount</span></td>
+                                <td><code>Amount</code>, <code>Debit</code>, <code>Credit</code></td>
+                                <td><code>450.00</code>, <code>₹1,250</code></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-primary">Description</span></td>
+                                <td><code>Description</code>, <code>Narration</code>, <code>Memo</code></td>
+                                <td><code>Swiggy order</code>, <code>Uber Ride</code></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-secondary">Type (Optional)</span></td>
+                                <td><code>Type</code></td>
+                                <td><code>expense</code> or <code>income</code></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-secondary">Category (Optional)</span></td>
+                                <td><code>Category</code></td>
+                                <td><code>Food &amp; Dining</code> (AI auto-predicts if missing)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 p-3 rounded" style="background: var(--wt-ai-light); border: 1px solid var(--wt-ai-border);">
+                    <i class="bi bi-magic text-purple fs-4"></i>
+                    <div class="small text-muted">
+                        <strong>AI Feature:</strong> If the <code>Category</code> column is blank or omitted, our pre-trained Naive Bayes classifier will automatically categorize each transaction based on description keywords!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Form Card -->
+        <div class="card card-fintech shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold" for="{{ form.csv_file.id_for_label }}">
+                            Select CSV File (.csv) <span class="text-danger">*</span>
+                        </label>
+                        {{ form.csv_file }}
+                        {% if form.csv_file.errors %}
+                        <div class="text-danger small mt-1">{{ form.csv_file.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-wt-primary px-4 py-2 flex-grow-1 shadow-sm">
+                            <i class="bi bi-cloud-arrow-up-fill me-1"></i>Upload &amp; Ingest Transactions
+                        </button>
+                        <a href="{% url 'transaction_list' %}" class="btn btn-outline-secondary px-4 py-2">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

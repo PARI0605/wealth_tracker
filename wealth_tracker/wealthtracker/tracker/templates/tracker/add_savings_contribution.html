@@ -1,0 +1,123 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Deposit to Goal - Smart Wealth Tracker{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1">Deposit to Savings Goal</h1>
+        <p class="text-secondary small mb-0">Contribute funds towards: <strong class="text-primary">{{ goal.goal_name }}</strong></p>
+    </div>
+    <div>
+        <a href="{% url 'savings_goal_list' %}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
+            <i class="bi bi-arrow-left"></i>
+            <span>Back to Goals</span>
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+        <!-- Goal Progress Summary Card -->
+        <div class="card card-fintech shadow-sm mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="fs-5 fw-bold">{{ goal.goal_name }}</span>
+                    <span class="badge badge-category">
+                        <i class="bi bi-calendar-event me-1"></i>Due {{ goal.deadline }}
+                    </span>
+                </div>
+
+                <div class="row g-2 text-center mb-3">
+                    <div class="col-6 p-2 rounded bg-light border">
+                        <span class="text-muted small d-block">Target Goal</span>
+                        <strong class="fs-5">₹{{ goal.target_amount }}</strong>
+                    </div>
+                    <div class="col-6 p-2 rounded bg-light border">
+                        <span class="text-muted small d-block">Currently Saved</span>
+                        <strong class="fs-5 text-success">₹{{ goal.saved_amount }}</strong>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                {% widthratio goal.saved_amount goal.target_amount 100 as current_pct %}
+                <div class="d-flex justify-content-between small text-muted mb-1">
+                    <span>Progress to date</span>
+                    <strong class="text-primary">{{ current_pct }}%</strong>
+                </div>
+                <div class="progress" style="height: 10px; border-radius: var(--wt-radius-full);">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {% if current_pct > 100 %}100{% else %}{{ current_pct }}{% endif %}%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deposit Form Card -->
+        <div class="card card-fintech shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST" id="depositForm" novalidate>
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold" for="id_amount">
+                            Contribution Deposit Amount <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text fw-bold text-muted">₹</span>
+                            <input type="number" name="amount" id="id_amount" class="form-control" step="0.01" min="1" placeholder="e.g. 5000" required autofocus>
+                        </div>
+                    </div>
+
+                    <!-- Live Dynamic Projection Banner -->
+                    <div id="projectionCard" class="p-3 mb-4 rounded-3 d-none" style="background: var(--wt-success-light); border: 1px solid var(--wt-success-border);">
+                        <div class="small fw-semibold text-success mb-1">
+                            <i class="bi bi-graph-up-arrow me-1"></i>Projected Goal Status After Deposit:
+                        </div>
+                        <div class="small text-muted" id="projectionText"></div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-flex gap-2 pt-2 border-top">
+                        <button type="submit" class="btn btn-wt-primary px-4 py-2 flex-grow-1 shadow-sm">
+                            <i class="bi bi-cash-stack me-1"></i>Confirm Deposit
+                        </button>
+                        <a href="{% url 'savings_goal_list' %}" class="btn btn-outline-secondary px-4 py-2">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const currentSaved = parseFloat('{{ goal.saved_amount }}') || 0;
+    const targetAmount = parseFloat('{{ goal.target_amount }}') || 1;
+    const amountInput = document.getElementById('id_amount');
+    const projCard = document.getElementById('projectionCard');
+    const projText = document.getElementById('projectionText');
+
+    if (amountInput) {
+        amountInput.addEventListener('input', function () {
+            const deposit = parseFloat(this.value) || 0;
+            if (deposit > 0) {
+                const newTotal = currentSaved + deposit;
+                const newPct = Math.round((newTotal / targetAmount) * 100);
+                const remaining = Math.max(0, targetAmount - newTotal);
+
+                projCard.classList.remove('d-none');
+                if (newTotal >= targetAmount) {
+                    projText.innerHTML = `🎉 <strong>Goal Accomplished!</strong> New total will be <strong>₹${newTotal.toFixed(2)}</strong> (${newPct}% of target).`;
+                } else {
+                    projText.innerHTML = `New total will be <strong>₹${newTotal.toFixed(2)}</strong> (${newPct}% completed). ₹${remaining.toFixed(2)} remaining to reach finish line.`;
+                }
+            } else {
+                projCard.classList.add('d-none');
+            }
+        });
+    }
+</script>
+{% endblock %}

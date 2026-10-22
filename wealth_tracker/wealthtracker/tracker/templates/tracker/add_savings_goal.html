@@ -1,0 +1,95 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Add Savings Goal - Smart Wealth Tracker{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1">Establish Savings Goal (Module 8)</h1>
+        <p class="text-secondary small mb-0">Define milestones, track time horizons, and calculate deposit trajectories.</p>
+    </div>
+    <div>
+        <a href="{% url 'savings_goal_list' %}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
+            <i class="bi bi-arrow-left"></i>
+            <span>Back to Goals</span>
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+        <div class="card card-fintech shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST" id="goalForm" novalidate>
+                    {% csrf_token %}
+
+                    <!-- Goal Name -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold" for="{{ form.goal_name.id_for_label }}">
+                            Goal Name <span class="text-danger">*</span>
+                        </label>
+                        {{ form.goal_name }}
+                        {% if form.goal_name.errors %}
+                        <div class="text-danger small mt-1">{{ form.goal_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <!-- Target Amount -->
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold" for="{{ form.target_amount.id_for_label }}">
+                                Target Amount <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text fw-bold text-muted">₹</span>
+                                {{ form.target_amount }}
+                            </div>
+                            {% if form.target_amount.errors %}
+                            <div class="text-danger small mt-1">{{ form.target_amount.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Current Saved Amount -->
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold" for="{{ form.saved_amount.id_for_label }}">
+                                Initial Deposit
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text fw-bold text-muted">₹</span>
+                                {{ form.saved_amount }}
+                            </div>
+                            {% if form.saved_amount.errors %}
+                            <div class="text-danger small mt-1">{{ form.saved_amount.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Target Deadline -->
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold" for="{{ form.deadline.id_for_label }}">
+                            Target Completion Date <span class="text-danger">*</span>
+                        </label>
+                        {{ form.deadline }}
+                        {% if form.deadline.errors %}
+                        <div class="text-danger small mt-1">{{ form.deadline.errors.0 }}</div>
+                        {% else %}
+                        <div class="form-text text-muted small">The system will track days remaining and celebrate milestone achievements.</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-flex gap-2 pt-2 border-top">
+                        <button type="submit" class="btn btn-wt-primary px-4 py-2 flex-grow-1 shadow-sm">
+                            <i class="bi bi-trophy-fill me-1"></i>Create Savings Goal
+                        </button>
+                        <a href="{% url 'savings_goal_list' %}" class="btn btn-outline-secondary px-4 py-2">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

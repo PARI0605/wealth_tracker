@@ -1,0 +1,100 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Savings Goals - Smart Wealth Tracker{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1">Savings Goal Tracker (Module 8)</h1>
+        <p class="text-secondary small mb-0">Set milestone targets, monitor time countdowns, and deposit savings systematically.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'add_savings_goal' %}" class="btn btn-wt-primary btn-sm d-flex align-items-center gap-1 shadow-sm">
+            <i class="bi bi-plus-circle-fill"></i>
+            <span>Set New Goal</span>
+        </a>
+    </div>
+</div>
+
+<!-- Goals List Card -->
+<div class="card card-fintech">
+    <div class="table-responsive">
+        <table class="table table-fintech">
+            <thead>
+                <tr>
+                    <th>Goal Name</th>
+                    <th>Target Amount</th>
+                    <th>Saved Amount</th>
+                    <th style="width: 240px;">Progress</th>
+                    <th>Remaining</th>
+                    <th>Deadline</th>
+                    <th>Status</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in goals_data %}
+                <tr class="{% if item.is_completed %}table-success-subtle{% elif item.days_left < 0 %}table-danger-subtle{% endif %}">
+                    <td>
+                        <strong class="d-block fs-6">{{ item.goal.goal_name }}</strong>
+                    </td>
+                    <td class="fw-bold">₹{{ item.goal.target_amount }}</td>
+                    <td class="text-success fw-bold">₹{{ item.goal.saved_amount }}</td>
+                    <td>
+                        <div class="progress" style="height: 10px; border-radius: var(--wt-radius-full);">
+                            <div class="progress-bar {% if item.is_completed %}bg-success{% else %}bg-primary{% endif %}" role="progressbar" style="width: {% if item.percent > 100 %}100{% else %}{{ item.percent }}{% endif %}%;"></div>
+                        </div>
+                        <span class="small text-muted fw-semibold mt-1 d-block">
+                            {{ item.percent }}% saved
+                        </span>
+                    </td>
+                    <td class="text-muted">₹{{ item.remaining }}</td>
+                    <td>
+                        <span class="badge badge-category">
+                            <i class="bi bi-calendar-event me-1"></i>{{ item.goal.deadline }}
+                            {% if item.days_left >= 0 %}
+                                ({{ item.days_left }}d left)
+                            {% else %}
+                                (Overdue)
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        {% if item.is_completed %}
+                            <span class="badge badge-ontrack">
+                                <i class="bi bi-trophy-fill me-1"></i>Completed
+                            </span>
+                        {% elif item.days_left < 0 %}
+                            <span class="badge badge-exceeded">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i>Overdue
+                            </span>
+                        {% else %}
+                            <span class="badge bg-primary-subtle text-primary border border-primary">
+                                <i class="bi bi-hourglass-split me-1"></i>In Progress
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end text-nowrap">
+                        <a href="{% url 'add_savings_contribution' item.goal.pk %}" class="btn btn-sm btn-outline-success me-1">
+                            <i class="bi bi-plus-lg me-1"></i>Deposit
+                        </a>
+                        <a href="{% url 'delete_savings_goal' item.goal.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this savings goal?')">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center py-5 text-muted">
+                        <i class="bi bi-trophy fs-2 d-block mb-2 text-secondary"></i>
+                        No savings goals established yet.
+                        <a href="{% url 'add_savings_goal' %}" class="btn btn-sm btn-wt-primary mt-2 d-inline-block">Create First Goal</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

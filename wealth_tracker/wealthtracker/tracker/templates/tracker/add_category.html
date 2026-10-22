@@ -1,0 +1,184 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Manage Categories - Smart Wealth Tracker{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1">Financial Categories</h1>
+        <p class="text-secondary small mb-0">Organize incomes, expenses, and budget limits under custom classifications with icons and color tags.</p>
+    </div>
+    <div>
+        <a href="{% url 'transaction_list' %}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
+            <i class="bi bi-arrow-left"></i>
+            <span>Back to Ledger</span>
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-7 col-md-9">
+        <!-- New Category Creation Form Card -->
+        <div class="card card-fintech shadow-sm mb-4">
+            <div class="card-header bg-transparent py-3">
+                <h6 class="fw-bold mb-0 text-primary">
+                    <i class="bi bi-plus-circle-fill me-2"></i>Create New Category
+                </h6>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" novalidate>
+                    {% csrf_token %}
+
+                    <!-- Category Name -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold" for="{{ form.name.id_for_label }}">
+                            Category Name <span class="text-danger">*</span>
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <!-- Icon Picker -->
+                        <div class="col-md-8">
+                            <label class="form-label small fw-semibold" for="{{ form.icon.id_for_label }}">
+                                Display Icon
+                            </label>
+                            {{ form.icon }}
+                        </div>
+
+                        <!-- Color Picker -->
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold" for="{{ form.color.id_for_label }}">
+                                Color Accent
+                            </label>
+                            <div class="d-flex align-items-center gap-2">
+                                {{ form.color }}
+                                <span class="small text-muted" id="colorHex">#4f46e5</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Suggestions -->
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold text-muted d-block mb-2">
+                            <i class="bi bi-lightning-charge text-warning me-1"></i>Quick Presets (Click to Auto-Fill)
+                        </label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 suggestion-chip" data-label="Food & Dining" data-icon="bi-cup-hot" data-color="#f59e0b">🍔 Food & Dining</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 suggestion-chip" data-label="Transportation" data-icon="bi-car-front" data-color="#06b6d4">🚗 Commute & Fuel</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 suggestion-chip" data-label="Rent & Housing" data-icon="bi-house-door" data-color="#6366f1">🏠 Housing & Rent</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 suggestion-chip" data-label="Utilities & Bills" data-icon="bi-lightning-charge" data-color="#eab308">💡 Utilities & Bills</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 suggestion-chip" data-label="Entertainment" data-icon="bi-film" data-color="#8b5cf6">🎬 Entertainment</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 suggestion-chip" data-label="Groceries" data-icon="bi-cart3" data-color="#10b981">🛒 Groceries</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 suggestion-chip" data-label="Healthcare" data-icon="bi-heart-pulse" data-color="#ef4444">🏥 Healthcare</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 suggestion-chip" data-label="Investments" data-icon="bi-graph-up-arrow" data-color="#3b82f6">📈 Investments</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 suggestion-chip" data-label="Salary & Income" data-icon="bi-cash-coin" data-color="#059669">💼 Salary</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 suggestion-chip" data-label="Travel & Trips" data-icon="bi-airplane" data-color="#14b8a6">✈️ Travel</button>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-flex gap-2 pt-2 border-top">
+                        <button type="submit" class="btn btn-wt-primary px-4 py-2 flex-grow-1 shadow-sm">
+                            <i class="bi bi-tag-fill me-1"></i>Save Category
+                        </button>
+                        <a href="{% url 'transaction_list' %}" class="btn btn-outline-secondary px-4 py-2">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Active Categories Listing Card -->
+        <div class="card card-fintech shadow-sm">
+            <div class="card-header bg-transparent d-flex align-items-center justify-content-between py-3">
+                <h6 class="fw-bold mb-0">
+                    <i class="bi bi-tags text-secondary me-2"></i>Active Categories ({{ categories|length }})
+                </h6>
+            </div>
+            <div class="card-body p-3">
+                <div class="table-responsive">
+                    <table class="table table-fintech table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Category Badge</th>
+                                <th>Color Tag</th>
+                                <th>Linked Txns</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cat in categories %}
+                            <tr>
+                                <td>
+                                    <span class="badge fs-6 py-2 px-3 fw-medium" style="background-color: {{ cat.color }}18; color: {{ cat.color }}; border: 1px solid {{ cat.color }}40;">
+                                        <i class="bi {{ cat.icon|default:'bi-tag' }} me-1"></i>{{ cat.name }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="d-inline-block rounded-circle me-1" style="width: 14px; height: 14px; background-color: {{ cat.color }}; vertical-align: middle;"></span>
+                                    <code class="small">{{ cat.color }}</code>
+                                </td>
+                                <td class="text-muted small">
+                                    {{ cat.transactions.count }} transactions
+                                </td>
+                                <td class="text-end">
+                                    <a href="{% url 'delete_category' cat.pk %}" class="btn btn-sm btn-outline-danger py-0 px-2" title="Delete Category" onclick="return confirm('Remove category \'{{ cat.name }}\'? Linked transactions will be safely preserved as General.')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">
+                                    No categories created yet. Click a quick preset above to get started!
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Live color picker feedback
+    const colorInput = document.getElementById('id_category_color');
+    const colorHex = document.getElementById('colorHex');
+    if (colorInput && colorHex) {
+        colorInput.addEventListener('input', function () {
+            colorHex.textContent = this.value;
+        });
+    }
+
+    // Quick suggestion presets
+    document.querySelectorAll('.suggestion-chip').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const label = this.getAttribute('data-label');
+            const icon = this.getAttribute('data-icon');
+            const color = this.getAttribute('data-color');
+
+            const inputName = document.getElementById('id_category_name');
+            const selectIcon = document.getElementById('id_icon');
+            const inputColor = document.getElementById('id_category_color');
+
+            if (inputName) inputName.value = label;
+            if (selectIcon && icon) selectIcon.value = icon;
+            if (inputColor && color) {
+                inputColor.value = color;
+                if (colorHex) colorHex.textContent = color;
+            }
+            if (inputName) inputName.focus();
+        });
+    });
+</script>
+{% endblock %}

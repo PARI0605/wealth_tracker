@@ -1,0 +1,500 @@
+/* ==========================================================================
+   Smart Wealth Tracker - Main Design System (static/css/main.css)
+   Combines Bootstrap 5.3 with custom tokens, dark mode, sidebar, and cards.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Design Tokens (CSS Custom Properties)
+   -------------------------------------------------------------------------- */
+:root {
+  /* Brand Primaries */
+  --wt-primary: #4f46e5;
+  --wt-primary-hover: #4338ca;
+  --wt-primary-light: #eef2ff;
+  --wt-primary-border: #c7d2fe;
+
+  /* Semantic Accents */
+  --wt-success: #10b981;
+  --wt-success-dark: #059669;
+  --wt-success-light: #ecfdf5;
+  --wt-success-border: #a7f3d0;
+
+  --wt-danger: #ef4444;
+  --wt-danger-dark: #dc2626;
+  --wt-danger-light: #fef2f2;
+  --wt-danger-border: #fecaca;
+
+  --wt-warning: #f59e0b;
+  --wt-warning-light: #fffbeb;
+  --wt-warning-border: #fde68a;
+
+  --wt-ai: #8b5cf6;
+  --wt-ai-dark: #7c3aed;
+  --wt-ai-light: #f5f3ff;
+  --wt-ai-border: #ddd6fe;
+
+  /* Neutrals & Surfaces (Light Mode) */
+  --wt-bg-body: #f8fafc;
+  --wt-bg-card: #ffffff;
+  --wt-bg-sidebar: #ffffff;
+  --wt-border: #e2e8f0;
+  --wt-text-main: #0f172a;
+  --wt-text-muted: #64748b;
+  --wt-text-light: #94a3b8;
+  --wt-sidebar-width: 250px;
+
+  /* Shadows */
+  --wt-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.08);
+  --wt-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
+  --wt-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.07);
+
+  /* Radius */
+  --wt-radius-sm: 6px;
+  --wt-radius-md: 10px;
+  --wt-radius-lg: 16px;
+  --wt-radius-full: 9999px;
+}
+
+/* --------------------------------------------------------------------------
+   2. Dark Mode Tokens
+   -------------------------------------------------------------------------- */
+[data-bs-theme="dark"],
+[data-theme="dark"] {
+  --wt-bg-body: #0b1120;
+  --wt-bg-card: #151f32;
+  --wt-bg-sidebar: #0f172a;
+  --wt-border: #27354f;
+  --wt-text-main: #f8fafc;
+  --wt-text-muted: #94a3b8;
+  --wt-text-light: #64748b;
+
+  --wt-primary-light: rgba(79, 70, 229, 0.15);
+  --wt-primary-border: rgba(99, 102, 241, 0.3);
+  --wt-success-light: rgba(16, 185, 129, 0.15);
+  --wt-success-border: rgba(16, 185, 129, 0.3);
+  --wt-danger-light: rgba(239, 68, 68, 0.15);
+  --wt-danger-border: rgba(239, 68, 68, 0.3);
+  --wt-warning-light: rgba(245, 158, 11, 0.15);
+  --wt-warning-border: rgba(245, 158, 11, 0.3);
+  --wt-ai-light: rgba(139, 92, 246, 0.15);
+  --wt-ai-border: rgba(139, 92, 246, 0.3);
+
+  --wt-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.4);
+  --wt-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --wt-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.45);
+}
+
+/* --------------------------------------------------------------------------
+   3. Base Reset & Font
+   -------------------------------------------------------------------------- */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--wt-bg-body) !important;
+  color: var(--wt-text-main) !important;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --------------------------------------------------------------------------
+   4. Sidebar Layout
+   -------------------------------------------------------------------------- */
+.sidebar-wrapper {
+  width: var(--wt-sidebar-width);
+  background-color: var(--wt-bg-sidebar);
+  border-right: 1px solid var(--wt-border);
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1040;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s ease-in-out;
+}
+
+.sidebar-brand {
+  padding: 20px 22px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--wt-primary);
+  border-bottom: 1px solid var(--wt-border);
+}
+
+.sidebar-brand-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--wt-primary) 0%, #818cf8 100%);
+  color: #ffffff;
+  border-radius: var(--wt-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  box-shadow: 0 2px 5px rgba(79, 70, 229, 0.3);
+}
+
+.sidebar-nav {
+  padding: 16px 12px;
+  flex: 1;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+}
+
+.sidebar-section-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--wt-text-muted);
+  padding: 12px 14px 6px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--wt-radius-sm);
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--wt-text-muted);
+  text-decoration: none;
+  margin-bottom: 4px;
+  transition: all 0.15s ease;
+}
+
+.sidebar-link i {
+  font-size: 1.15rem;
+  width: 22px;
+  text-align: center;
+  transition: transform 0.15s ease;
+}
+
+.sidebar-link:hover {
+  color: var(--wt-primary);
+  background-color: var(--wt-primary-light);
+}
+
+.sidebar-link:hover i {
+  transform: scale(1.1);
+}
+
+.sidebar-link.active {
+  color: var(--wt-primary);
+  background-color: var(--wt-primary-light);
+  font-weight: 700;
+}
+
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--wt-border);
+}
+
+/* Sidebar Backdrop on Mobile */
+.sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1030;
+  display: none;
+}
+
+.sidebar-backdrop.show {
+  display: block;
+}
+
+/* --------------------------------------------------------------------------
+   5. Content Wrapper & Top Navigation
+   -------------------------------------------------------------------------- */
+.content-wrapper {
+  margin-left: var(--wt-sidebar-width);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-topbar {
+  background-color: var(--wt-bg-card);
+  border-bottom: 1px solid var(--wt-border);
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+  padding: 12px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Hamburger toggle for mobile */
+.sidebar-toggle-btn {
+  display: none;
+  background: transparent;
+  border: 1px solid var(--wt-border);
+  color: var(--wt-text-main);
+  border-radius: var(--wt-radius-sm);
+  padding: 6px 10px;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* User Badge Pill */
+.user-menu-pill {
+  background-color: var(--wt-bg-body);
+  border: 1px solid var(--wt-border);
+  padding: 6px 14px;
+  border-radius: var(--wt-radius-full);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--wt-text-main);
+}
+
+.user-status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--wt-success);
+  border-radius: 50%;
+}
+
+/* Main Container Area */
+.main-body {
+  padding: 28px;
+  flex: 1;
+}
+
+/* --------------------------------------------------------------------------
+   6. Fintech Cards & KPI Metric Grid
+   -------------------------------------------------------------------------- */
+.card-fintech {
+  background-color: var(--wt-bg-card);
+  border: 1px solid var(--wt-border);
+  border-radius: var(--wt-radius-lg);
+  box-shadow: var(--wt-shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-fintech:hover {
+  box-shadow: var(--wt-shadow-md);
+}
+
+.stat-card {
+  background-color: var(--wt-bg-card);
+  border: 1px solid var(--wt-border);
+  border-radius: var(--wt-radius-md);
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--wt-shadow-xs);
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+}
+
+.stat-card.stat-balance::before { background: var(--wt-primary); }
+.stat-card.stat-income::before  { background: var(--wt-success); }
+.stat-card.stat-expense::before { background: var(--wt-danger); }
+.stat-card.stat-ai::before      { background: var(--wt-ai); }
+
+.stat-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--wt-text-muted);
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  color: var(--wt-text-main);
+}
+
+.stat-meta {
+  font-size: 0.84rem;
+  color: var(--wt-text-muted);
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* --------------------------------------------------------------------------
+   7. Tables & Badges
+   -------------------------------------------------------------------------- */
+.table-fintech {
+  width: 100%;
+  margin-bottom: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table-fintech th {
+  background-color: var(--wt-bg-body);
+  color: var(--wt-text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--wt-border);
+}
+
+.table-fintech td {
+  padding: 14px 18px;
+  font-size: 0.92rem;
+  color: var(--wt-text-main);
+  border-bottom: 1px solid var(--wt-border);
+  vertical-align: middle;
+}
+
+.table-fintech tbody tr:hover td {
+  background-color: var(--wt-bg-body);
+}
+
+.table-fintech tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Badges */
+.badge-income {
+  background-color: var(--wt-success-light);
+  color: var(--wt-success-dark);
+  border: 1px solid var(--wt-success-border);
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--wt-radius-full);
+}
+
+.badge-expense {
+  background-color: var(--wt-danger-light);
+  color: var(--wt-danger-dark);
+  border: 1px solid var(--wt-danger-border);
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--wt-radius-full);
+}
+
+.badge-category {
+  background-color: var(--wt-bg-body);
+  color: var(--wt-text-main);
+  border: 1px solid var(--wt-border);
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--wt-radius-full);
+}
+
+.badge-ontrack {
+  background-color: var(--wt-success-light);
+  color: var(--wt-success-dark);
+  border: 1px solid var(--wt-success-border);
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--wt-radius-full);
+}
+
+.badge-exceeded {
+  background-color: var(--wt-danger-light);
+  color: var(--wt-danger-dark);
+  border: 1px solid var(--wt-danger-border);
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--wt-radius-full);
+}
+
+/* --------------------------------------------------------------------------
+   8. Form Controls & Buttons
+   -------------------------------------------------------------------------- */
+.form-control,
+.form-select {
+  background-color: var(--wt-bg-card) !important;
+  color: var(--wt-text-main) !important;
+  border-color: var(--wt-border) !important;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  border-radius: var(--wt-radius-sm);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--wt-primary) !important;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18) !important;
+}
+
+.btn-wt-primary {
+  background: linear-gradient(135deg, var(--wt-primary) 0%, #6366f1 100%);
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.25);
+  transition: all 0.15s ease;
+}
+
+.btn-wt-primary:hover {
+  background: linear-gradient(135deg, var(--wt-primary-hover) 0%, #4f46e5 100%);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(79, 70, 229, 0.35);
+}
+
+/* --------------------------------------------------------------------------
+   9. Mobile Responsive Rules
+   -------------------------------------------------------------------------- */
+@media (max-width: 991.98px) {
+  .sidebar-wrapper {
+    transform: translateX(-100%);
+  }
+
+  .sidebar-wrapper.show {
+    transform: translateX(0);
+  }
+
+  .content-wrapper {
+    margin-left: 0;
+  }
+
+  .sidebar-toggle-btn {
+    display: inline-flex;
+  }
+
+  .main-body {
+    padding: 18px 14px;
+  }
+}

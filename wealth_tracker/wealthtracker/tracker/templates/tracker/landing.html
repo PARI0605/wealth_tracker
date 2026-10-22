@@ -1,0 +1,327 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Wealth Tracker - AI-Powered Financial Intelligence</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'tracker/style.css' %}">
+</head>
+<body>
+
+    <!-- Landing Navigation -->
+    <header class="landing-nav">
+        <div class="nav-wrapper">
+            <a href="{% url 'landing' %}" class="brand-logo">
+                <span class="brand-icon">💰</span>
+                <span>WealthTracker</span>
+            </a>
+
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#features" class="nav-link">Features</a></li>
+                    <li><a href="#ai-preview" class="nav-link">AI Engine</a></li>
+                    <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+                </ul>
+            </nav>
+
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <a href="{% url 'login' %}" class="btn btn-secondary btn-sm">Sign In</a>
+                <a href="{% url 'signup' %}" class="btn btn-primary btn-sm">Get Started Free &rarr;</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="landing-hero">
+        <div class="container">
+            <div class="landing-badge">
+                <span>🤖</span>
+                <span>Powered by Machine Learning &amp; Chart.js</span>
+            </div>
+
+            <h1 class="landing-title">
+                Smart Wealth Tracking with <span>Predictive AI</span>
+            </h1>
+
+            <p class="landing-subtitle">
+                Automate merchant categorization with Naive Bayes NLP, forecast monthly cash flow using Linear Regression, and reach your savings milestones with intelligent insights.
+            </p>
+
+            <div class="landing-cta-group">
+                <a href="{% url 'signup' %}" class="btn btn-primary btn-lg">
+                    Create Free Account &rarr;
+                </a>
+                <a href="{% url 'login' %}" class="btn btn-secondary btn-lg">
+                    Sign In to Dashboard
+                </a>
+            </div>
+
+            <!-- Hero Mockup Dashboard Preview -->
+            <div class="hero-mockup-wrapper">
+                <div class="mockup-header-bar">
+                    <div class="mockup-dots">
+                        <span class="mockup-dot dot-red"></span>
+                        <span class="mockup-dot dot-yellow"></span>
+                        <span class="mockup-dot dot-green"></span>
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">
+                        🔒 Live Financial Dashboard Preview
+                    </div>
+                    <div style="font-size: 0.8rem; background: #eef2ff; color: #4338ca; padding: 3px 8px; border-radius: 4px; font-weight: 700;">
+                        ACTIVE
+                    </div>
+                </div>
+
+                <div class="stats-grid" style="margin-bottom: 20px;">
+                    <div class="stat-card stat-balance">
+                        <span class="stat-label">Net Balance</span>
+                        <div class="stat-value">₹1,45,280</div>
+                        <div class="stat-meta"><span>✓ Healthy liquidity</span></div>
+                    </div>
+                    <div class="stat-card stat-income">
+                        <span class="stat-label">Monthly Income</span>
+                        <div class="stat-value" style="color: var(--success);">+₹85,000</div>
+                        <div class="stat-meta"><span>↑ Recorded Salary</span></div>
+                    </div>
+                    <div class="stat-card stat-expense">
+                        <span class="stat-label">Monthly Spending</span>
+                        <div class="stat-value" style="color: var(--danger);">-₹32,450</div>
+                        <div class="stat-meta"><span>↓ Within budget</span></div>
+                    </div>
+                    <div class="stat-card stat-ai">
+                        <span class="stat-label">AI Forecast (Next Mo.)</span>
+                        <div class="stat-value" style="color: var(--purple);">₹29,800</div>
+                        <div class="stat-meta"><span>🤖 Projected -8% spend</span></div>
+                    </div>
+                </div>
+
+                <!-- Mini charts / widgets preview row -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                    <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <strong style="font-size: 0.9rem;">🍰 Expense Breakdown</strong>
+                            <span class="badge badge-category">Categorized</span>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span>🍔 Food &amp; Dining</span><strong>₹12,400 (38%)</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span>🚗 Transportation</span><strong>₹6,200 (19%)</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>🛍️ Shopping</span><strong>₹4,850 (15%)</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <strong style="font-size: 0.9rem;">🏆 Goal: Emergency Fund</strong>
+                            <span class="badge badge-ontrack">75% Saved</span>
+                        </div>
+                        <div class="progress-bar-container" style="height: 10px; margin-top: 10px;">
+                            <div class="progress-bar-fill completed" style="width: 75%;"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--text-muted); margin-top: 6px;">
+                            <span>₹75,000 of ₹1,00,000</span>
+                            <span>42 days remaining</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Features Section -->
+    <section class="landing-section" id="features">
+        <div class="container">
+            <div class="section-tag">Key Modules &amp; Capabilities</div>
+            <h2 class="section-title">Everything You Need to Master Your Money</h2>
+            <p class="section-subtitle">
+                Built with precision engineering, combining modern web visualization with machine learning intelligence.
+            </p>
+
+            <div class="landing-features-grid">
+                <div class="feature-box">
+                    <div class="feature-icon-wrapper" style="background: #eef2ff; color: #4f46e5;">📊</div>
+                    <h3>Visual Analytics (Chart.js)</h3>
+                    <p>Interactive category-wise donut charts and 6-month income vs expense comparative bar charts give you instant clarity on your cash velocity.</p>
+                </div>
+
+                <div class="feature-box">
+                    <div class="feature-icon-wrapper" style="background: #f5f3ff; color: #7c3aed;">🤖</div>
+                    <h3>AI Expense Prediction</h3>
+                    <p>Scikit-learn Linear Regression models analyze historical spending patterns to forecast next month's expenses and detect budget overrun risks.</p>
+                </div>
+
+                <div class="feature-box">
+                    <div class="feature-icon-wrapper" style="background: #ecfdf5; color: #059669;">🏷️</div>
+                    <h3>NLP Auto-Categorization</h3>
+                    <p>Naive Bayes NLP model automatically infers category from descriptions like "Swiggy", "Uber", or "Netflix" with high probabilistic confidence.</p>
+                </div>
+
+                <div class="feature-box">
+                    <div class="feature-icon-wrapper" style="background: #fffbeb; color: #d97706;">🎯</div>
+                    <h3>Smart Budget Planning</h3>
+                    <p>Set custom monthly category budgets with real-time progress bars and color-coded alert badges when thresholds are approached or exceeded.</p>
+                </div>
+
+                <div class="feature-box">
+                    <div class="feature-icon-wrapper" style="background: #f0fdf4; color: #16a34a;">🏆</div>
+                    <h3>Savings Goal Tracker</h3>
+                    <p>Create milestone goals with target amounts and target dates. Deposit funds incrementally and watch your completion percentages soar.</p>
+                </div>
+
+                <div class="feature-box">
+                    <div class="feature-icon-wrapper" style="background: #eff6ff; color: #2563eb;">🔒</div>
+                    <h3>Secure &amp; Multi-Tenant</h3>
+                    <p>Isolated user records with Django session security, CSRF protection, and MySQL transactional data integrity.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive AI Sandbox on Landing Page -->
+    <section class="landing-section" id="ai-preview" style="background: #f8fafc; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+        <div class="container" style="max-width: 860px;">
+            <div class="section-tag">Interactive Machine Learning Playground</div>
+            <h2 class="section-title">Test the AI Classifier Right Now</h2>
+            <p class="section-subtitle">
+                Enter any store name or payment memo below to test our Naive Bayes Natural Language Processing model in real time:
+            </p>
+
+            <div class="card" style="box-shadow: var(--shadow-md);">
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <input type="text" id="demoQueryInput" placeholder="Try 'Dominos Pizza', 'Uber cab ride', 'Zara shirt', 'Electricity bill'..." style="flex: 1; min-width: 280px;">
+                    <button type="button" onclick="testLiveAI()" class="btn btn-primary">
+                        ⚡ Run AI Inference
+                    </button>
+                </div>
+
+                <div id="demoAiOutput" style="display: none; margin-top: 20px; background: #ffffff; border: 1px solid var(--border-color); border-radius: 10px; padding: 18px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <div>
+                            <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Predicted Category</span>
+                            <div id="demoPredCategory" style="font-size: 1.3rem; font-weight: 800; color: #4338ca;"></div>
+                        </div>
+                        <div>
+                            <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Model Confidence</span>
+                            <div id="demoPredConfidence" style="font-size: 1.3rem; font-weight: 800; color: var(--success-dark);"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">Quick test samples:</span>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="setDemoQuery('Starbucks latte')">Starbucks latte</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="setDemoQuery('Uber ride to airport')">Uber ride</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="setDemoQuery('Amazon electronics shopping')">Amazon shopping</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="setDemoQuery('Monthly Salary deposit')">Salary deposit</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="landing-section" id="how-it-works">
+        <div class="container">
+            <div class="section-tag">Streamlined Process</div>
+            <h2 class="section-title">How Smart Wealth Tracker Works</h2>
+            <p class="section-subtitle">Three easy steps to financial clarity and autonomous forecasting.</p>
+
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3>Log Your Transactions</h3>
+                    <p>Record your incomes and daily expenses with ease. If you leave categories empty, our AI automatically tags them for you.</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3>AI Forecasts Trends</h3>
+                    <p>Linear Regression models compute your daily spend velocity and project month-end totals against your active budget limits.</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3>Crush Your Goals</h3>
+                    <p>Stay on track with visual Chart.js dashboards, avoid budget overruns, and deposit funds to accomplish your savings milestones.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final Call To Action Banner -->
+    <section class="container">
+        <div class="landing-cta-banner">
+            <h2>Take Control of Your Wealth Today</h2>
+            <p>Join Smart Wealth Tracker to experience machine learning financial insights, live charts, and intelligent savings tracking.</p>
+            <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+                <a href="{% url 'signup' %}" class="btn btn-primary btn-lg" style="background: #ffffff; color: #312e81; font-weight: 800;">
+                    Get Started Free &rarr;
+                </a>
+                <a href="{% url 'login' %}" class="btn btn-secondary btn-lg" style="background: transparent; color: #ffffff; border-color: rgba(255,255,255,0.3);">
+                    Existing Member Sign In
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p style="margin-bottom: 6px;">
+                <strong>Smart Wealth Tracker</strong> &bull; Complete Financial Intelligence Engine
+            </p>
+            <p style="color: var(--text-light); font-size: 0.8rem;">
+                Built with Python, Django, MySQL, Chart.js, and scikit-learn.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Interactive AI Script -->
+    <script>
+        function setDemoQuery(text) {
+            document.getElementById('demoQueryInput').value = text;
+            testLiveAI();
+        }
+
+        function testLiveAI() {
+            const input = document.getElementById('demoQueryInput');
+            const output = document.getElementById('demoAiOutput');
+            const catEl = document.getElementById('demoPredCategory');
+            const confEl = document.getElementById('demoPredConfidence');
+
+            const query = input.value.trim();
+            if (!query) {
+                alert('Please enter a description to classify!');
+                return;
+            }
+
+            output.style.display = 'block';
+            catEl.textContent = 'Classifying with NLP...';
+            confEl.textContent = '...';
+
+            fetch(`/api/predict-category/?desc=${encodeURIComponent(query)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.predicted_category) {
+                        catEl.textContent = data.predicted_category;
+                        confEl.textContent = `${data.confidence}% Probabilistic Confidence`;
+                    } else {
+                        catEl.textContent = 'General / Other';
+                        confEl.textContent = 'Default baseline';
+                    }
+                })
+                .catch(err => {
+                    catEl.textContent = 'Classification Error';
+                    confEl.textContent = 'API Unavailable';
+                });
+        }
+    </script>
+</body>
+</html>

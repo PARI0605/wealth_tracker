@@ -1,0 +1,560 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Net Worth &amp; Balance Sheet - Smart Wealth Tracker{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1">
+            <i class="bi bi-bank text-primary me-2"></i>Net Worth &amp; Balance Sheet
+        </h1>
+        <p class="text-secondary small mb-0">
+            Real-time valuation of positive asset holdings, outstanding liabilities, and historical trajectory.
+        </p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-sm btn-wt-primary d-flex align-items-center gap-1 shadow-sm" data-bs-toggle="modal" data-bs-target="#quickAddAssetModal">
+            <i class="bi bi-plus-circle"></i>
+            <span>Add Asset</span>
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1 shadow-sm" data-bs-toggle="modal" data-bs-target="#quickAddLiabilityModal">
+            <i class="bi bi-dash-circle"></i>
+            <span>Add Liability</span>
+        </button>
+    </div>
+</div>
+
+<!-- ======================================================================
+     EXECUTIVE KPI STAT CARDS
+     ====================================================================== -->
+<div class="row g-3 mb-4">
+    <!-- Net Worth Master Card -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-fintech stat-card stat-net-worth h-100 p-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="stat-label">Net Worth</span>
+                <span class="badge {% if net_worth >= 0 %}bg-success-subtle text-success{% else %}bg-danger-subtle text-danger{% endif %} border">
+                    {% if net_worth >= 0 %}Positive Equity{% else %}Negative Equity{% endif %}
+                </span>
+            </div>
+            <div class="stat-value {% if net_worth >= 0 %}text-primary{% else %}text-danger{% endif %} mb-1">
+                ₹{{ net_worth|floatformat:2 }}
+            </div>
+            <div class="stat-trend text-secondary small">
+                <i class="bi bi-calculator me-1"></i>Assets minus Liabilities
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Assets Card -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-fintech stat-card stat-income h-100 p-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="stat-label">Total Assets</span>
+                <span class="badge bg-success-subtle text-success border">
+                    {{ assets.count }} Holdings
+                </span>
+            </div>
+            <div class="stat-value text-success mb-1">
+                ₹{{ total_assets|floatformat:2 }}
+            </div>
+            <div class="stat-trend text-secondary small">
+                <i class="bi bi-wallet2 text-success me-1"></i>Cash, Bank, Investments, Real Estate
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Liabilities Card -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-fintech stat-card stat-expense h-100 p-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="stat-label">Total Liabilities</span>
+                <span class="badge bg-danger-subtle text-danger border">
+                    {{ liabilities.count }} Debts
+                </span>
+            </div>
+            <div class="stat-value text-danger mb-1">
+                ₹{{ total_liabilities|floatformat:2 }}
+            </div>
+            <div class="stat-trend text-secondary small">
+                <i class="bi bi-credit-card-2-front text-danger me-1"></i>Loans, Credit Cards, Due Balances
+            </div>
+        </div>
+    </div>
+
+    <!-- Solvency & Health Status Card -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-fintech stat-card stat-ai h-100 p-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="stat-label">Debt-to-Asset Ratio</span>
+                <span class="badge bg-{{ solvency.badge }}-subtle text-{{ solvency.badge }} border">
+                    <i class="bi {{ solvency.icon }} me-1"></i>{{ solvency.label }}
+                </span>
+            </div>
+            <div class="stat-value mb-1" style="color: var(--wt-ai-dark);">
+                {{ debt_to_asset_ratio }}%
+            </div>
+            <div class="progress mb-1" style="height: 6px;">
+                <div class="progress-bar bg-{{ solvency.badge }}" role="progressbar" style="width: {% if debt_to_asset_ratio > 100 %}100{% else %}{{ debt_to_asset_ratio }}{% endif %}%;" aria-valuenow="{{ debt_to_asset_ratio }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <div class="stat-trend text-secondary small text-truncate" title="{{ solvency.desc }}">
+                {{ solvency.desc }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ======================================================================
+     CHARTS GRID: TRAJECTORY & ALLOCATION BREAKDOWNS
+     ====================================================================== -->
+<div class="row g-4 mb-4">
+    <!-- 6-Month Net Worth Trajectory Chart -->
+    <div class="col-lg-8">
+        <div class="card card-fintech h-100 p-3">
+            <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                <div>
+                    <h5 class="card-title h6 fw-bold mb-0">
+                        <i class="bi bi-graph-up text-primary me-2"></i>Net Worth Trajectory
+                    </h5>
+                    <small class="text-secondary">Historical 6-month growth simulated from verified cash flow</small>
+                </div>
+                <span class="badge bg-primary-subtle text-primary border">6 Months</span>
+            </div>
+            <div style="position: relative; height: 300px;">
+                <canvas id="netWorthTrajectoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Asset Allocation Donut Chart -->
+    <div class="col-lg-4">
+        <div class="card card-fintech h-100 p-3">
+            <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                <div>
+                    <h5 class="card-title h6 fw-bold mb-0">
+                        <i class="bi bi-pie-chart-fill text-success me-2"></i>Asset Allocation
+                    </h5>
+                    <small class="text-secondary">Distribution across asset classes</small>
+                </div>
+                <span class="badge bg-success-subtle text-success border">Portfolio</span>
+            </div>
+            <div style="position: relative; height: 300px;">
+                <canvas id="assetAllocationChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ======================================================================
+     HOLDINGS BREAKDOWN TABLES (ASSETS & LIABILITIES)
+     ====================================================================== -->
+<div class="row g-4 mb-4">
+    <!-- Assets Table -->
+    <div class="col-lg-6">
+        <div class="card card-fintech shadow-sm h-100">
+            <div class="card-header bg-transparent d-flex align-items-center justify-content-between py-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-wallet2 text-success fs-5"></i>
+                    <div>
+                        <h6 class="fw-bold mb-0">Positive Assets</h6>
+                        <small class="text-secondary">{{ assets.count }} logged asset holdings</small>
+                    </div>
+                </div>
+                <a href="{% url 'add_asset' %}" class="btn btn-sm btn-outline-success d-flex align-items-center gap-1">
+                    <i class="bi bi-plus-lg"></i>
+                    <span>New Asset</span>
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-fintech align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Holding Name</th>
+                                <th>Asset Class</th>
+                                <th class="text-end">Valuation (₹)</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in assets %}
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold text-truncate" style="max-width: 170px;">{{ a.name }}</div>
+                                    <small class="text-secondary">{{ a.updated_at|date:"M d, Y" }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary-subtle text-primary border">
+                                        {{ a.get_asset_type_display }}
+                                    </span>
+                                </td>
+                                <td class="text-end fw-bold text-success">
+                                    ₹{{ a.amount|floatformat:2 }}
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'edit_asset' a.pk %}" class="btn btn-outline-secondary btn-sm" title="Edit Asset">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="{% url 'delete_asset' a.pk %}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to remove asset \'{{ a.name }}\'?');" title="Delete Asset">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">
+                                    <i class="bi bi-piggy-bank display-6 d-block mb-2 text-secondary opacity-50"></i>
+                                    <p class="mb-2">No assets recorded yet.</p>
+                                    <a href="{% url 'add_asset' %}" class="btn btn-sm btn-wt-primary">Add Your First Asset</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        {% if assets %}
+                        <tfoot class="table-light">
+                            <tr>
+                                <th colspan="2" class="fw-bold">Total Asset Valuation</th>
+                                <th class="text-end fw-bold text-success">₹{{ total_assets|floatformat:2 }}</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liabilities Table -->
+    <div class="col-lg-6">
+        <div class="card card-fintech shadow-sm h-100">
+            <div class="card-header bg-transparent d-flex align-items-center justify-content-between py-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-credit-card-2-front text-danger fs-5"></i>
+                    <div>
+                        <h6 class="fw-bold mb-0">Outstanding Liabilities</h6>
+                        <small class="text-secondary">{{ liabilities.count }} recorded debt obligations</small>
+                    </div>
+                </div>
+                <a href="{% url 'add_liability' %}" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1">
+                    <i class="bi bi-plus-lg"></i>
+                    <span>New Debt</span>
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-fintech align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Obligation Name</th>
+                                <th>Debt Type</th>
+                                <th class="text-end">Amount Due (₹)</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for l in liabilities %}
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold text-truncate" style="max-width: 170px;">{{ l.name }}</div>
+                                    <small class="text-secondary">{{ l.updated_at|date:"M d, Y" }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-danger-subtle text-danger border">
+                                        {{ l.get_liability_type_display }}
+                                    </span>
+                                </td>
+                                <td class="text-end fw-bold text-danger">
+                                    ₹{{ l.amount|floatformat:2 }}
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'edit_liability' l.pk %}" class="btn btn-outline-secondary btn-sm" title="Edit Liability">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="{% url 'delete_liability' l.pk %}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to remove debt \'{{ l.name }}\'?');" title="Delete Liability">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">
+                                    <i class="bi bi-shield-check display-6 d-block mb-2 text-success opacity-75"></i>
+                                    <p class="mb-1 text-success fw-semibold">Zero Debts Logged!</p>
+                                    <small class="text-secondary">You currently have no outstanding debts or liabilities recorded.</small>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        {% if liabilities %}
+                        <tfoot class="table-light">
+                            <tr>
+                                <th colspan="2" class="fw-bold">Total Outstanding Debt</th>
+                                <th class="text-end fw-bold text-danger">₹{{ total_liabilities|floatformat:2 }}</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ======================================================================
+     ACADEMIC & VIVA DEFENSE CONTEXT BANNER
+     ====================================================================== -->
+<div class="card card-fintech p-4 mb-4 border-start border-4 border-primary">
+    <div class="d-flex align-items-start gap-3">
+        <div class="ai-avatar fs-4">🏛️</div>
+        <div>
+            <h6 class="fw-bold mb-1">Financial Architecture &amp; Viva Insights: Net Worth Modeling</h6>
+            <p class="text-secondary small mb-2">
+                In classical accounting and personal wealth engineering, <strong>Net Worth</strong> serves as the definitive metric of solvency and financial standing:
+            </p>
+            <div class="row g-2 small text-muted">
+                <div class="col-md-4">
+                    <span class="badge bg-light text-dark border me-1">&bull;</span>
+                    <strong>Equation:</strong> <code>Net Worth = &Sigma; Assets - &Sigma; Liabilities</code>
+                </div>
+                <div class="col-md-4">
+                    <span class="badge bg-light text-dark border me-1">&bull;</span>
+                    <strong>Solvency Ratio:</strong> <code>Debt-to-Asset = (Liabilities &divide; Assets) &times; 100</code>
+                </div>
+                <div class="col-md-4">
+                    <span class="badge bg-light text-dark border me-1">&bull;</span>
+                    <strong>Trajectory Engine:</strong> Back-projects 6-month wealth using verified monthly cash flow delta.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ======================================================================
+     MODAL: QUICK ADD ASSET
+     ====================================================================== -->
+<div class="modal fade" id="quickAddAssetModal" tabindex="-1" aria-labelledby="quickAddAssetModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <form method="POST" action="{% url 'add_asset' %}">
+                {% csrf_token %}
+                <div class="modal-header border-bottom py-3">
+                    <h5 class="modal-title fw-bold" id="quickAddAssetModalLabel">
+                        <i class="bi bi-wallet2 text-success me-2"></i>Add Positive Asset
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Asset Name</label>
+                        {{ asset_form.name }}
+                        <small class="text-muted d-block mt-1">e.g. HDFC Salary Account, Zerodha Portfolio, Gold Sovereign</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Asset Classification</label>
+                        {{ asset_form.asset_type }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Current Valuation (INR)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light fw-bold">₹</span>
+                            {{ asset_form.amount }}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top py-2">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-wt-primary btn-sm">Save Asset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ======================================================================
+     MODAL: QUICK ADD LIABILITY
+     ====================================================================== -->
+<div class="modal fade" id="quickAddLiabilityModal" tabindex="-1" aria-labelledby="quickAddLiabilityModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <form method="POST" action="{% url 'add_liability' %}">
+                {% csrf_token %}
+                <div class="modal-header border-bottom py-3">
+                    <h5 class="modal-title fw-bold" id="quickAddLiabilityModalLabel">
+                        <i class="bi bi-credit-card-2-front text-danger me-2"></i>Add Liability / Debt
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Liability Name</label>
+                        {{ liability_form.name }}
+                        <small class="text-muted d-block mt-1">e.g. ICICI Credit Card Due, SBI Education Loan, Car EMI</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Debt Classification</label>
+                        {{ liability_form.liability_type }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Amount Due (INR)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light fw-bold">₹</span>
+                            {{ liability_form.amount }}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top py-2">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger btn-sm">Record Debt</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ======================================================================
+     CHART.JS NET WORTH SCRIPTS
+     ====================================================================== -->
+<script>
+    function getChartThemeColors(theme) {
+        if (theme === 'dark') {
+            return {
+                textColor: '#94a3b8',
+                gridColor: '#334155',
+                borderColor: '#1e293b'
+            };
+        }
+        return {
+            textColor: '#64748b',
+            gridColor: '#f1f5f9',
+            borderColor: '#ffffff'
+        };
+    }
+
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const themeColors = getChartThemeColors(currentTheme);
+
+    Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    Chart.defaults.color = themeColors.textColor;
+
+    // 1. Net Worth Trajectory Line Chart
+    const trajectoryLabels = {{ trajectory_labels_json|safe }};
+    const trajectoryData = {{ trajectory_data_json|safe }};
+
+    const trajCtx = document.getElementById('netWorthTrajectoryChart').getContext('2d');
+    
+    // Create gradient fill under trajectory line
+    const trajGradient = trajCtx.createLinearGradient(0, 0, 0, 300);
+    trajGradient.addColorStop(0, 'rgba(79, 70, 229, 0.35)');
+    trajGradient.addColorStop(1, 'rgba(79, 70, 229, 0.00)');
+
+    const trajectoryChart = new Chart(trajCtx, {
+        type: 'line',
+        data: {
+            labels: trajectoryLabels,
+            datasets: [{
+                label: 'Net Worth (₹)',
+                data: trajectoryData,
+                borderColor: '#4f46e5',
+                backgroundColor: trajGradient,
+                fill: true,
+                tension: 0.35,
+                borderWidth: 3,
+                pointBackgroundColor: '#4f46e5',
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 7
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return ' Net Worth: ₹' + Number(context.raw).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    grid: { color: themeColors.gridColor },
+                    ticks: {
+                        color: themeColors.textColor,
+                        callback: function(value) { return '₹' + Number(value).toLocaleString('en-IN'); }
+                    }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: themeColors.textColor }
+                }
+            }
+        }
+    });
+
+    // 2. Asset Allocation Donut Chart
+    const assetLabels = {{ asset_labels_json|safe }};
+    const assetData = {{ asset_data_json|safe }};
+    const assetColors = {{ asset_colors_json|safe }};
+
+    const assetCtx = document.getElementById('assetAllocationChart').getContext('2d');
+    const assetChart = new Chart(assetCtx, {
+        type: 'doughnut',
+        data: {
+            labels: assetLabels.length > 0 ? assetLabels : ['No Assets'],
+            datasets: [{
+                data: assetData.length > 0 ? assetData : [1],
+                backgroundColor: assetColors.length > 0 ? assetColors : ['#e2e8f0'],
+                borderWidth: 2,
+                borderColor: themeColors.borderColor
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '62%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { boxWidth: 12, padding: 10, color: themeColors.textColor }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            if (assetData.length === 0) return ' No asset holdings logged';
+                            return ' ' + context.label + ': ₹' + Number(context.raw).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // React to dynamic dark/light theme switch
+    window.addEventListener('themeChanged', function(e) {
+        const colors = getChartThemeColors(e.detail.theme);
+        Chart.defaults.color = colors.textColor;
+
+        // Trajectory chart
+        trajectoryChart.options.scales.y.grid.color = colors.gridColor;
+        trajectoryChart.options.scales.y.ticks.color = colors.textColor;
+        trajectoryChart.options.scales.x.ticks.color = colors.textColor;
+        trajectoryChart.update();
+
+        // Asset chart
+        assetChart.data.datasets[0].borderColor = colors.borderColor;
+        assetChart.options.plugins.legend.labels.color = colors.textColor;
+        assetChart.update();
+    });
+</script>
+{% endblock %}

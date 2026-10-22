@@ -1,0 +1,83 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Add Liability / Debt - Smart Wealth Tracker{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1">
+            <i class="bi bi-credit-card-2-front text-danger me-2"></i>Record Liability / Debt
+        </h1>
+        <p class="text-secondary small mb-0">Track credit card dues, education loans, home mortgages, or borrowings.</p>
+    </div>
+    <div>
+        <a href="{% url 'net_worth' %}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
+            <i class="bi bi-arrow-left"></i>
+            <span>Back to Net Worth</span>
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+        <div class="card card-fintech shadow-sm">
+            <div class="card-header bg-transparent py-3">
+                <h6 class="fw-bold mb-0">
+                    <i class="bi bi-exclamation-circle text-danger me-2"></i>Debt Obligation Details
+                </h6>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" novalidate>
+                    {% csrf_token %}
+
+                    <!-- Liability Name -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold" for="{{ form.name.id_for_label }}">
+                            Obligation / Creditor Name <span class="text-danger">*</span>
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
+                        {% endif %}
+                        <small class="text-muted d-block mt-1">e.g. HDFC Credit Card, SBI Education Loan, Car Loan</small>
+                    </div>
+
+                    <!-- Liability Type -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold" for="{{ form.liability_type.id_for_label }}">
+                            Debt Classification <span class="text-danger">*</span>
+                        </label>
+                        {{ form.liability_type }}
+                        {% if form.liability_type.errors %}
+                        <div class="text-danger small mt-1">{{ form.liability_type.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Amount Due -->
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold" for="{{ form.amount.id_for_label }}">
+                            Outstanding Balance Due <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text fw-bold text-muted">₹</span>
+                            {{ form.amount }}
+                        </div>
+                        {% if form.amount.errors %}
+                        <div class="text-danger small mt-1">{{ form.amount.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-end gap-2 pt-2 border-top">
+                        <a href="{% url 'net_worth' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-danger d-flex align-items-center gap-1">
+                            <i class="bi bi-check-lg"></i>
+                            <span>Record Debt</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
