@@ -65,14 +65,17 @@ def ai_insights_view(request):
             'matched_category': matched.name if matched else 'None (auto-mapped)',
         }
 
-    return render(request, 'tracker/ai_insights.html', {
-        'ai_data': ai_data,
-        'anomalies': anomalies,
-        'budget_recommendations': budget_recommendations,
-        'financial_insights': financial_insights,
-        'test_result': test_result,
-        'test_query': test_query,
-    })
+    try:
+        return render(request, 'tracker/ai_insights.html', {
+            'ai_data': ai_data,
+            'anomalies': anomalies,
+            'budget_recommendations': budget_recommendations,
+            'financial_insights': financial_insights,
+            'test_result': test_result,
+            'test_query': test_query,
+        })
+    except Exception:
+        return redirect('dashboard')
 
 
 @login_required
