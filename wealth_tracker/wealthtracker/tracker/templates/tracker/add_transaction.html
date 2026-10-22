@@ -7,7 +7,7 @@
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
     <div>
         <h1 class="h3 fw-bold mb-1">Record Transaction</h1>
-        <p class="text-secondary small mb-0">Log financial cash flows with real-time AI category recommendation.</p>
+        <p class="text-secondary small mb-0">Log financial cash flows{% if SHOW_AI_FEATURES %} with real-time AI category recommendation{% endif %}.</p>
     </div>
     <div>
         <a href="{% url 'transaction_list' %}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
@@ -29,6 +29,7 @@
         </div>
         {% endif %}
 
+        {% if SHOW_AI_FEATURES %}
         <!-- Module 7: AI Auto-Categorization Helper Banner -->
         <div class="card card-fintech mb-4 border-0 shadow-sm" style="background: var(--wt-ai-light); border-left: 4px solid var(--wt-ai) !important;">
             <div class="card-body p-3 p-md-4">
@@ -47,6 +48,7 @@
                 <div id="aiResult" class="small fw-semibold" style="min-height: 22px;"></div>
             </div>
         </div>
+        {% endif %}
 
         <!-- Main Form Card -->
         <div class="card card-fintech shadow-sm">
@@ -136,6 +138,7 @@
 {% endblock %}
 
 {% block scripts %}
+{% if SHOW_AI_FEATURES %}
 <script>
     function predictCategoryAI() {
         const descInput = document.getElementById('id_description');
@@ -195,4 +198,5 @@
         }
     });
 </script>
+{% endif %}
 {% endblock %}

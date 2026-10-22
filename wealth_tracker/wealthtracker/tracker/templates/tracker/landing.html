@@ -22,7 +22,9 @@
             <nav>
                 <ul class="nav-links">
                     <li><a href="#features" class="nav-link">Features</a></li>
+                    {% if SHOW_AI_FEATURES %}
                     <li><a href="#ai-preview" class="nav-link">AI Engine</a></li>
+                    {% endif %}
                     <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
                 </ul>
             </nav>
@@ -38,16 +40,20 @@
     <section class="landing-hero">
         <div class="container">
             <div class="landing-badge">
-                <span>🤖</span>
-                <span>Powered by Machine Learning &amp; Chart.js</span>
+                <span>{% if SHOW_AI_FEATURES %}🤖{% else %}✨{% endif %}</span>
+                <span>{% if SHOW_AI_FEATURES %}Powered by Machine Learning &amp; Chart.js{% else %}Intelligent Analytics &amp; Dynamic Visualizations{% endif %}</span>
             </div>
 
             <h1 class="landing-title">
-                Smart Wealth Tracking with <span>Predictive AI</span>
+                Smart Wealth Tracking {% if SHOW_AI_FEATURES %}with <span>Predictive AI</span>{% else %}for <span>Modern Savers</span>{% endif %}
             </h1>
 
             <p class="landing-subtitle">
+                {% if SHOW_AI_FEATURES %}
                 Automate merchant categorization with Naive Bayes NLP, forecast monthly cash flow using Linear Regression, and reach your savings milestones with intelligent insights.
+                {% else %}
+                Track your cash flows, set category budgets, visualize income vs expenses with interactive charts, and reach your savings milestones with clarity.
+                {% endif %}
             </p>
 
             <div class="landing-cta-group">
@@ -91,11 +97,19 @@
                         <div class="stat-value" style="color: var(--danger);">-₹32,450</div>
                         <div class="stat-meta"><span>↓ Within budget</span></div>
                     </div>
+                    {% if SHOW_AI_FEATURES %}
                     <div class="stat-card stat-ai">
                         <span class="stat-label">AI Forecast (Next Mo.)</span>
                         <div class="stat-value" style="color: var(--purple);">₹29,800</div>
                         <div class="stat-meta"><span>🤖 Projected -8% spend</span></div>
                     </div>
+                    {% else %}
+                    <div class="stat-card" style="border-top: 3px solid var(--primary);">
+                        <span class="stat-label">Net Savings Rate</span>
+                        <div class="stat-value" style="color: var(--primary);">61.8%</div>
+                        <div class="stat-meta"><span>🎯 Above target milestone</span></div>
+                    </div>
+                    {% endif %}
                 </div>
 
                 <!-- Mini charts / widgets preview row -->
@@ -142,7 +156,7 @@
             <div class="section-tag">Key Modules &amp; Capabilities</div>
             <h2 class="section-title">Everything You Need to Master Your Money</h2>
             <p class="section-subtitle">
-                Built with precision engineering, combining modern web visualization with machine learning intelligence.
+                Built with precision engineering, combining modern web visualization with {% if SHOW_AI_FEATURES %}machine learning intelligence{% else %}complete wealth analytics{% endif %}.
             </p>
 
             <div class="landing-features-grid">
@@ -152,6 +166,7 @@
                     <p>Interactive category-wise donut charts and 6-month income vs expense comparative bar charts give you instant clarity on your cash velocity.</p>
                 </div>
 
+                {% if SHOW_AI_FEATURES %}
                 <div class="feature-box">
                     <div class="feature-icon-wrapper" style="background: #f5f3ff; color: #7c3aed;">🤖</div>
                     <h3>AI Expense Prediction</h3>
@@ -163,6 +178,19 @@
                     <h3>NLP Auto-Categorization</h3>
                     <p>Naive Bayes NLP model automatically infers category from descriptions like "Swiggy", "Uber", or "Netflix" with high probabilistic confidence.</p>
                 </div>
+                {% else %}
+                <div class="feature-box">
+                    <div class="feature-icon-wrapper" style="background: #f5f3ff; color: #7c3aed;">🏛️</div>
+                    <h3>Net Worth Management</h3>
+                    <p>Track your physical, financial, and investment assets against liabilities and loans with real-time balance sheet calculations.</p>
+                </div>
+
+                <div class="feature-box">
+                    <div class="feature-icon-wrapper" style="background: #ecfdf5; color: #059669;">🏷️</div>
+                    <h3>Custom Categorization</h3>
+                    <p>Easily organize and classify expenses across custom categories like Food, Utilities, Transport, Shopping, and Entertainment.</p>
+                </div>
+                {% endif %}
 
                 <div class="feature-box">
                     <div class="feature-icon-wrapper" style="background: #fffbeb; color: #d97706;">🎯</div>
@@ -185,6 +213,7 @@
         </div>
     </section>
 
+    {% if SHOW_AI_FEATURES %}
     <!-- Interactive AI Sandbox on Landing Page -->
     <section class="landing-section" id="ai-preview" style="background: #f8fafc; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
         <div class="container" style="max-width: 860px;">
@@ -225,6 +254,7 @@
             </div>
         </div>
     </section>
+    {% endif %}
 
     <!-- How It Works Section -->
     <section class="landing-section" id="how-it-works">
@@ -237,13 +267,13 @@
                 <div class="step-card">
                     <div class="step-number">1</div>
                     <h3>Log Your Transactions</h3>
-                    <p>Record your incomes and daily expenses with ease. If you leave categories empty, our AI automatically tags them for you.</p>
+                    <p>Record your incomes and daily expenses with ease{% if SHOW_AI_FEATURES %}. If you leave categories empty, our AI automatically tags them for you{% else %}, organized across customizable spending categories{% endif %}.</p>
                 </div>
 
                 <div class="step-card">
                     <div class="step-number">2</div>
-                    <h3>AI Forecasts Trends</h3>
-                    <p>Linear Regression models compute your daily spend velocity and project month-end totals against your active budget limits.</p>
+                    <h3>{% if SHOW_AI_FEATURES %}AI Forecasts Trends{% else %}Track Cash Flow Trends{% endif %}</h3>
+                    <p>{% if SHOW_AI_FEATURES %}Linear Regression models compute your daily spend velocity and project month-end totals against your active budget limits.{% else %}Interactive dashboards compute your cash velocity and project month-end totals against your active budget limits.{% endif %}</p>
                 </div>
 
                 <div class="step-card">
@@ -259,7 +289,7 @@
     <section class="container">
         <div class="landing-cta-banner">
             <h2>Take Control of Your Wealth Today</h2>
-            <p>Join Smart Wealth Tracker to experience machine learning financial insights, live charts, and intelligent savings tracking.</p>
+            <p>Join Smart Wealth Tracker to experience {% if SHOW_AI_FEATURES %}machine learning financial insights, live charts{% else %}comprehensive financial insights, live charts{% endif %}, and intelligent savings tracking.</p>
             <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
                 <a href="{% url 'signup' %}" class="btn btn-primary btn-lg" style="background: #ffffff; color: #312e81; font-weight: 800;">
                     Get Started Free &rarr;
@@ -278,11 +308,12 @@
                 <strong>Smart Wealth Tracker</strong> &bull; Complete Financial Intelligence Engine
             </p>
             <p style="color: var(--text-light); font-size: 0.8rem;">
-                Built with Python, Django, MySQL, Chart.js, and scikit-learn.
+                Built with Python, Django, MySQL, and Chart.js.
             </p>
         </div>
     </footer>
 
+    {% if SHOW_AI_FEATURES %}
     <!-- Interactive AI Script -->
     <script>
         function setDemoQuery(text) {
@@ -323,5 +354,6 @@
                 });
         }
     </script>
+    {% endif %}
 </body>
 </html>

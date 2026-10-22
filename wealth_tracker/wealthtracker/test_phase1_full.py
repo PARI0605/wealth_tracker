@@ -8,6 +8,7 @@ sys.path.append(r'c:\Users\Parinika\OneDrive\Desktop\wealth_tracker\wealth_track
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'wealthtracker.settings')
 django.setup()
 
+from django.conf import settings
 from django.test import Client
 from django.contrib.auth.models import User
 from tracker.models import Category, Transaction, Budget, SavingsGoal
@@ -38,7 +39,10 @@ resp = client.get('/dashboard/')
 assert resp.status_code == 200, f"Dashboard failed with {resp.status_code}"
 assert b'Financial Dashboard' in resp.content, "Dashboard title missing"
 assert b'Net Balance' in resp.content, "KPI Net Balance missing"
-assert b'AI Forecast' in resp.content, "AI Forecast card missing"
+if getattr(settings, 'SHOW_AI_FEATURES', False):
+    assert b'AI Forecast' in resp.content, "AI Forecast card missing"
+else:
+    assert b'AI Forecast' not in resp.content, "AI Forecast card should be hidden when SHOW_AI_FEATURES is False"
 assert b'categoryPieChart' in resp.content, "Chart.js donut canvas missing"
 assert b'incomeExpenseBarChart' in resp.content, "Chart.js bar canvas missing"
 assert b'appSidebar' in resp.content, "Sidebar element missing"
@@ -56,9 +60,13 @@ print("[PASS] Transaction Ledger renders with live search toolbar (HTTP 200)")
 resp = client.get('/transactions/add/')
 assert resp.status_code == 200, f"Add transaction failed with {resp.status_code}"
 assert b'Record Transaction' in resp.content, "Add transaction title missing"
-assert b'AI Smart Auto-Tag' in resp.content, "AI Helper missing"
+if getattr(settings, 'SHOW_AI_FEATURES', False):
+    assert b'AI Smart Auto-Tag' in resp.content, "AI Helper missing"
+    print("[PASS] Add Transaction form renders with Bootstrap 5 input group and AI Auto-Tag (HTTP 200)")
+else:
+    assert b'AI Smart Auto-Tag' not in resp.content, "AI Helper should be hidden"
+    print("[PASS] Add Transaction form renders with Bootstrap 5 input group (HTTP 200)")
 assert b'input-group' in resp.content, "Bootstrap input group missing"
-print("[PASS] Add Transaction form renders with Bootstrap 5 input group and AI Auto-Tag (HTTP 200)")
 
 # 7. Test AI Prediction API endpoint
 resp = client.get('/api/predict-category/?desc=Swiggy%20order')
@@ -94,11 +102,16 @@ assert b'Establish Savings Goal' in resp.content, "Add goal title missing"
 print("[PASS] Savings Goals List and Add Goal pages render cleanly (HTTP 200)")
 
 # 11. Test AI Hub
-resp = client.get('/ai/')
-assert resp.status_code == 200, f"AI hub failed with {resp.status_code}"
-assert b'AI &amp; Machine Learning Hub' in resp.content or b'AI & Machine Learning Hub' in resp.content, "AI hub title missing"
-assert b'Linear Regression Model Details' in resp.content, "Regression table missing"
-assert b'Naive Bayes NLP Categorization Sandbox' in resp.content, "NLP sandbox missing"
-print("[PASS] AI Hub renders Linear Regression metrics, forecast cards, and NLP sandbox (HTTP 200)")
+if getattr(settings, 'SHOW_AI_FEATURES', False):
+    resp = client.get('/ai/')
+    assert resp.status_code == 200, f"AI hub failed with {resp.status_code}"
+    assert b'AI &amp; Machine Learning Hub' in resp.content or b'AI & Machine Learning Hub' in resp.content, "AI hub title missing"
+    assert b'Linear Regression Model Details' in resp.content, "Regression table missing"
+    assert b'Naive Bayes NLP Categorization Sandbox' in resp.content, "NLP sandbox missing"
+    print("[PASS] AI Hub renders Linear Regression metrics, forecast cards, and NLP sandbox (HTTP 200)")
+else:
+    resp = client.get('/ai/')
+    assert resp.status_code == 302, f"AI hub should redirect (HTTP 302) when SHOW_AI_FEATURES is False, got: {resp.status_code}"
+    print("[PASS] AI Hub cleanly redirects (HTTP 302) when AI features are hidden")
 
 print("\n=== ALL 11 PHASE 1 VERIFICATION TESTS PASSED SUCCESSFULLY! ===")

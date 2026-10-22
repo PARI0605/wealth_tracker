@@ -8,6 +8,7 @@ sys.path.append(r'c:\Users\Parinika\OneDrive\Desktop\wealth_tracker\wealth_track
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'wealthtracker.settings')
 django.setup()
 
+from django.conf import settings
 from django.test import Client
 from django.contrib.auth.models import User
 from tracker.models import Category, Transaction, Budget
@@ -31,14 +32,19 @@ user = User.objects.get(username='shadow')
 print("[PASS] User 'shadow' authenticated")
 
 # 2. Test AI Hub GET (HTTP 200 and all Phase 5 sections)
-resp = client.get('/ai/')
-assert resp.status_code == 200, f"AI Hub failed: {resp.status_code}"
-assert b'Spending Anomaly Detection Radar' in resp.content, "Anomaly radar section missing"
-assert b'AI Smart Budget Recommendations' in resp.content, "Budget recommendations missing"
-assert b'Plain-Language Financial Insights Engine' in resp.content, "Insights engine section missing"
-assert b'Live Naive Bayes NLP Categorization Sandbox' in resp.content, "Sandbox missing"
-assert b'Time-Series Linear Regression Model Details' in resp.content, "Regression details missing"
-print("[PASS] AI Hub renders all 5 intelligence modules (HTTP 200)")
+if getattr(settings, 'SHOW_AI_FEATURES', False):
+    resp = client.get('/ai/')
+    assert resp.status_code == 200, f"AI Hub failed: {resp.status_code}"
+    assert b'Spending Anomaly Detection Radar' in resp.content, "Anomaly radar section missing"
+    assert b'AI Smart Budget Recommendations' in resp.content, "Budget recommendations missing"
+    assert b'Plain-Language Financial Insights Engine' in resp.content, "Insights engine section missing"
+    assert b'Live Naive Bayes NLP Categorization Sandbox' in resp.content, "Sandbox missing"
+    assert b'Time-Series Linear Regression Model Details' in resp.content, "Regression details missing"
+    print("[PASS] AI Hub renders all 5 intelligence modules (HTTP 200)")
+else:
+    resp = client.get('/ai/')
+    assert resp.status_code == 302, f"AI Hub should redirect (HTTP 302) when SHOW_AI_FEATURES is False, got: {resp.status_code}"
+    print("[PASS] AI Hub cleanly redirects (HTTP 302) when AI features are hidden")
 
 # 3. Test Anomaly Detection Engine
 food_cat = Category.objects.filter(user=user, name__icontains='Food').first() or Category.objects.filter(user=user).first()
@@ -76,8 +82,12 @@ anomaly_ids = get_transaction_anomaly_ids(user)
 assert spike.pk in anomaly_ids
 resp = client.get('/transactions/')
 assert resp.status_code == 200
-assert b'Unusual Spend' in resp.content, "Anomaly badge missing in transaction ledger HTML"
-print("[PASS] Transaction Ledger displays 'Unusual Spend' warning badge on flagged anomaly")
+if getattr(settings, 'SHOW_AI_FEATURES', False):
+    assert b'Unusual Spend' in resp.content, "Anomaly badge missing in transaction ledger HTML"
+    print("[PASS] Transaction Ledger displays 'Unusual Spend' warning badge on flagged anomaly")
+else:
+    assert b'Unusual Spend' not in resp.content, "Anomaly badge should be hidden"
+    print("[PASS] Transaction Ledger hides 'Unusual Spend' anomaly badge when AI features are disabled")
 
 # 5. Test AI Budget Recommendations Engine
 recs = generate_budget_recommendations(user)
@@ -110,8 +120,12 @@ print(f"[PASS] Financial Insights Engine generated: '{first_ins['title']}'")
 # 8. Test Dashboard AI Advisory Banner
 resp = client.get('/dashboard/')
 assert resp.status_code == 200
-assert b'AI Intelligence &amp; Spending Advisory' in resp.content or b'AI Intelligence & Spending Advisory' in resp.content
-print("[PASS] Dashboard features dynamic AI Intelligence & Spending Advisory banner")
+if getattr(settings, 'SHOW_AI_FEATURES', False):
+    assert b'AI Intelligence &amp; Spending Advisory' in resp.content or b'AI Intelligence & Spending Advisory' in resp.content
+    print("[PASS] Dashboard features dynamic AI Intelligence & Spending Advisory banner")
+else:
+    assert b'AI Intelligence &amp; Spending Advisory' not in resp.content and b'AI Intelligence & Spending Advisory' not in resp.content
+    print("[PASS] Dashboard hides AI Advisory banner when SHOW_AI_FEATURES is False")
 
 # 9. Clean up test spike transaction
 spike.delete()

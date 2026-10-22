@@ -757,5 +757,17 @@ class SavingsGoalForm(forms.ModelForm):
 - `NotSupportedError: MySQL 8.4 or later is required` — fixed by downgrading Django to 5.1.5.
 - `CSS styling missing / unstyled plain HTML` — configured `STATIC_URL = '/static/'` and `STATICFILES_DIRS = [BASE_DIR / 'static']` in `settings.py`, created comprehensive `static/css/style.css` design system with navigation header, card components, form controls, progress bars, and unified `base.html` template.
 
+---
+
+## 🔒 Module 9: AI Feature Visibility Flag (Hiding AI on Website)
+- **Goal:** Hide all AI/ML references, banners, navigation links, and sandbox widgets from the public website and UI, while preserving all underlying backend models, services, and algorithms intact so they can be re-enabled effortlessly later.
+- **Implementation:**
+  - Added `SHOW_AI_FEATURES = False` in `wealthtracker/settings.py`.
+  - Created global template context processor in `tracker/context_processors.py` injecting `SHOW_AI_FEATURES`.
+  - Updated all templates (`base.html`, `dashboard.html`, `landing.html`, `login.html`, `signup.html`, `add_transaction.html`, `transaction_list.html`, `import_transactions.html`) to conditionally render AI cards, badges, and copy.
+  - Direct visits to `/ai/` cleanly redirect to `/dashboard/` when `SHOW_AI_FEATURES` is `False`.
+  - **To Re-Enable AI in the Future:** Change `SHOW_AI_FEATURES = True` in `wealthtracker/settings.py`.
+
+
 
 

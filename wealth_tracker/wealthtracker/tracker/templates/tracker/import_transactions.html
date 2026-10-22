@@ -9,7 +9,7 @@
         <h1 class="h3 fw-bold mb-1">
             <i class="bi bi-file-earmark-spreadsheet-fill text-success me-2"></i>Import Bank Statement (CSV)
         </h1>
-        <p class="text-secondary small mb-0">Upload bank or wallet statement CSV files for automatic ingestion and AI categorization.</p>
+        <p class="text-secondary small mb-0">Upload bank or wallet statement CSV files for automatic ingestion{% if SHOW_AI_FEATURES %} and AI categorization{% endif %}.</p>
     </div>
     <div>
         <a href="{% url 'transaction_list' %}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
@@ -66,18 +66,20 @@
                             <tr>
                                 <td><span class="badge bg-secondary">Category (Optional)</span></td>
                                 <td><code>Category</code></td>
-                                <td><code>Food &amp; Dining</code> (AI auto-predicts if missing)</td>
+                                <td><code>Food &amp; Dining</code>{% if SHOW_AI_FEATURES %} (AI auto-predicts if missing){% endif %}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
+                {% if SHOW_AI_FEATURES %}
                 <div class="d-flex align-items-center gap-2 p-3 rounded" style="background: var(--wt-ai-light); border: 1px solid var(--wt-ai-border);">
                     <i class="bi bi-magic text-purple fs-4"></i>
                     <div class="small text-muted">
                         <strong>AI Feature:</strong> If the <code>Category</code> column is blank or omitted, our pre-trained Naive Bayes classifier will automatically categorize each transaction based on description keywords!
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
 

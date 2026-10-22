@@ -23,8 +23,8 @@
 
         <div class="dual-brand-body">
             <div class="dual-hero-tag">
-                <span>🤖</span>
-                <span>AI-Driven Financial Intelligence</span>
+                <span>{% if SHOW_AI_FEATURES %}🤖{% else %}💎{% endif %}</span>
+                <span>{% if SHOW_AI_FEATURES %}AI-Driven Financial Intelligence{% else %}Modern Financial Intelligence{% endif %}</span>
             </div>
 
             <h1 class="dual-hero-title">
@@ -32,11 +32,16 @@
             </h1>
 
             <p class="dual-hero-desc">
+                {% if SHOW_AI_FEATURES %}
                 Log transactions, visualize category breakdowns with interactive charts, and forecast next month's cash flow using machine learning models.
+                {% else %}
+                Log transactions, visualize category breakdowns with interactive charts, manage assets and liabilities, and reach your savings milestones.
+                {% endif %}
             </p>
 
             <!-- Feature highlight showcase card -->
             <div class="dual-feature-card">
+                {% if SHOW_AI_FEATURES %}
                 <div class="dual-feature-item">
                     <div class="dual-feature-icon">📈</div>
                     <div class="dual-feature-text">
@@ -52,6 +57,23 @@
                         <p>Automatically classifies descriptions into Food, Transport, Utilities, and Shopping.</p>
                     </div>
                 </div>
+                {% else %}
+                <div class="dual-feature-item">
+                    <div class="dual-feature-icon">📊</div>
+                    <div class="dual-feature-text">
+                        <h4>Interactive Chart.js Analytics</h4>
+                        <p>Visual donut breakdowns and 6-month cash flow trends give total financial transparency.</p>
+                    </div>
+                </div>
+
+                <div class="dual-feature-item">
+                    <div class="dual-feature-icon">🏛️</div>
+                    <div class="dual-feature-text">
+                        <h4>Net Worth &amp; Balance Sheet</h4>
+                        <p>Track assets, investments, and liabilities with real-time liquidity and solvency metrics.</p>
+                    </div>
+                </div>
+                {% endif %}
 
                 <div class="dual-feature-item">
                     <div class="dual-feature-icon">🏆</div>

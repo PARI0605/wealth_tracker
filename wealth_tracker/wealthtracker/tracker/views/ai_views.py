@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
+from django.conf import settings
 from tracker.models import Category, Budget
 from tracker.ai import (
     predict_category,
@@ -43,6 +44,9 @@ def ai_insights_view(request):
       4. Plain-language financial advisory cards.
       5. Interactive Naive Bayes NLP sandbox.
     """
+    if not getattr(settings, 'SHOW_AI_FEATURES', False):
+        return redirect('dashboard')
+
     user = request.user
     ai_data = predict_expenses(user)
     anomalies = detect_anomalies(user, threshold_z=2.0)

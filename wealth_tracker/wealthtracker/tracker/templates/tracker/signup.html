@@ -28,11 +28,15 @@
             </div>
 
             <h1 class="dual-hero-title">
-                Start Building Real Wealth with AI.
+                Start Building Real Wealth{% if SHOW_AI_FEATURES %} with AI{% endif %}.
             </h1>
 
             <p class="dual-hero-desc">
+                {% if SHOW_AI_FEATURES %}
                 Get instant access to automated expense classification, predictive monthly spending projections, and intuitive budget planners.
+                {% else %}
+                Get instant access to visual expense charts, comprehensive net worth calculations, and intuitive budget planners.
+                {% endif %}
             </p>
 
             <div class="dual-feature-card">
@@ -44,6 +48,7 @@
                     </div>
                 </div>
 
+                {% if SHOW_AI_FEATURES %}
                 <div class="dual-feature-item">
                     <div class="dual-feature-icon">🤖</div>
                     <div class="dual-feature-text">
@@ -51,6 +56,15 @@
                         <p>Naive Bayes categorization and Linear Regression forecasting adapt to your habits.</p>
                     </div>
                 </div>
+                {% else %}
+                <div class="dual-feature-item">
+                    <div class="dual-feature-icon">📊</div>
+                    <div class="dual-feature-text">
+                        <h4>Visual Chart.js Analytics</h4>
+                        <p>Dynamic category breakdowns and multi-month income vs spending trends.</p>
+                    </div>
+                </div>
+                {% endif %}
 
                 <div class="dual-feature-item">
                     <div class="dual-feature-icon">🛡️</div>

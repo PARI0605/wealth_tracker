@@ -65,10 +65,16 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'tracker.context_processors.ai_feature_flag',
             ],
         },
     },
 ]
+
+# Feature Visibility Settings
+# Set to True when ready to display AI & Machine Learning modules on the website UI.
+SHOW_AI_FEATURES = False
+
 
 WSGI_APPLICATION = 'wealthtracker.wsgi.application'
 
